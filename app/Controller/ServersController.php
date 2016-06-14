@@ -512,8 +512,8 @@ class ServersController extends AppController {
 		if (!Configure::read('MISP.background_jobs')) {
 			$server = $this->Server->read(null, $id);
 			App::uses('SyncTool', 'Tools');
-			$syncTool = new SyncTool();
-			$HttpSocket = $syncTool->setupHttpSocket($server);
+			$SyncTool = new SyncTool();
+			$HttpSocket = $SyncTool->setupHttpSocket($server);
 			$result = $this->Server->push($id, $technique, false, $HttpSocket, $this->Auth->user());
 			if ($result === false) {
 				$this->Session->setFlash('The remote server is too outdated to initiate a push towards it. Please notify the hosting organisation of the remote instance.');
@@ -772,9 +772,9 @@ class ServersController extends AppController {
 	private function __checkVersion() {
 		if (!$this->_isSiteAdmin()) throw new MethodNotAllowedException();
 		App::uses('SyncTool', 'Tools');
-		$syncTool = new SyncTool();
+		$SyncTool = new SyncTool();
 		try {
-			$HttpSocket = $syncTool->setupHttpSocket();
+			$HttpSocket = $SyncTool->setupHttpSocket();
 			$response = $HttpSocket->get('https://api.github.com/repos/MISP/MISP/tags');
 			$tags = $response->body;
 		} catch (Exception $e) {

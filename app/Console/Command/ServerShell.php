@@ -53,8 +53,8 @@ class ServerShell extends AppShell
 		$this->Job->read(null, $jobId);
 		$server = $this->Server->read(null, $serverId);
 		App::uses('SyncTool', 'Tools');
-		$syncTool = new SyncTool();
-		$HttpSocket = $syncTool->setupHttpSocket($server);
+		$SyncTool = new SyncTool();
+		$HttpSocket = $SyncTool->setupHttpSocket($server);
 		$user = $this->User->getAuthUser($userId);
 		$result = $this->Server->push($serverId, 'full', $jobId, $HttpSocket, $user);
 		$message = 'Job done.';
@@ -119,7 +119,7 @@ class ServerShell extends AppShell
 			if ($task['Task']['timer'] > 0)	$this->Task->reQueue($task, 'default', 'ServerShell', 'enqueuePull', $userId, $taskId);
 
 			App::uses('SyncTool', 'Tools');
-			$syncTool = new SyncTool();
+			$SyncTool = new SyncTool();
 			$result = $this->Server->pull($user, $server['Server']['id'], 'full', $server, $jobId);
 			$this->Job->save(array(
 					'id' => $jobId,
@@ -179,8 +179,8 @@ class ServerShell extends AppShell
 			$this->Job->save($data);
 			$jobId = $this->Job->id;
 			App::uses('SyncTool', 'Tools');
-			$syncTool = new SyncTool();
-			$HttpSocket = $syncTool->setupHttpSocket($server);
+			$SyncTool = new SyncTool();
+			$HttpSocket = $SyncTool->setupHttpSocket($server);
 			$result = $this->Server->push($server['Server']['id'], 'full', $jobId, $HttpSocket, $user);
 		}
 		$this->Task->id = $task['Task']['id'];

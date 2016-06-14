@@ -1102,8 +1102,8 @@ class AttributesController extends AppController {
 			return;
 		App::uses('SyncTool', 'Tools');
 		foreach ($servers as &$server) {
-			$syncTool = new SyncTool();
-			$HttpSocket = $syncTool->setupHttpSocket($server);
+			$SyncTool = new SyncTool();
+			$HttpSocket = $SyncTool->setupHttpSocket($server);
 			$this->Attribute->deleteAttributeFromServer($uuid, $server, $HttpSocket);
 		}
 	}

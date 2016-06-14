@@ -1170,8 +1170,8 @@ class Server extends AppModel {
 			// download each event
 			if (null != $eventIds) {
 				App::uses('SyncTool', 'Tools');
-				$syncTool = new SyncTool();
-				$HttpSocket = $syncTool->setupHttpSocket($server);
+				$SyncTool = new SyncTool();
+				$HttpSocket = $SyncTool->setupHttpSocket($server);
 				foreach ($eventIds as $k => &$eventId) {
 					$event = $eventModel->downloadEventFromServer(
 							$eventId,
@@ -1414,8 +1414,8 @@ class Server extends AppModel {
 		else $filter_rules = $this->filterRuleToParameter($server['Server']['pull_rules']);
 		if (null == $HttpSocket) {
 			App::uses('SyncTool', 'Tools');
-			$syncTool = new SyncTool();
-			$HttpSocket = $syncTool->setupHttpSocket($server);
+			$SyncTool = new SyncTool();
+			$HttpSocket = $SyncTool->setupHttpSocket($server);
 		}
 		$request = array(
 				'header' => array(
@@ -1624,8 +1624,8 @@ class Server extends AppModel {
 		}
 		if (null == $HttpSocket) {
 			App::uses('SyncTool', 'Tools');
-			$syncTool = new SyncTool();
-			$HttpSocket = $syncTool->setupHttpSocket($server);
+			$SyncTool = new SyncTool();
+			$HttpSocket = $SyncTool->setupHttpSocket($server);
 		}
 		$data = json_encode($eventIds);
 		$request = array(
@@ -1649,8 +1649,8 @@ class Server extends AppModel {
 		$saModel = ClassRegistry::init('ShadowAttribute');
 		if (null == $HttpSocket) {
 			App::uses('SyncTool', 'Tools');
-			$syncTool = new SyncTool();
-			$HttpSocket = $syncTool->setupHttpSocket($server);
+			$SyncTool = new SyncTool();
+			$HttpSocket = $SyncTool->setupHttpSocket($server);
 		}
 		if ($sa_id == null) {
 			if ($event_id == null) {
@@ -2162,8 +2162,8 @@ class Server extends AppModel {
 	public function runConnectionTest($id) {
 		$server = $this->find('first', array('conditions' => array('Server.id' => $id)));
 		App::uses('SyncTool', 'Tools');
-		$syncTool = new SyncTool();
-		$HttpSocket = $syncTool->setupHttpSocket($server);
+		$SyncTool = new SyncTool();
+		$HttpSocket = $SyncTool->setupHttpSocket($server);
 		$request = array(
 			'header' => array(
 				'Authorization' => $server['Server']['authkey'],
@@ -2216,8 +2216,8 @@ class Server extends AppModel {
 		$server = $this->find('first', array('conditions' => array('Server.id' => $id)));
 		if (!$HttpSocket) {
 			App::uses('SyncTool', 'Tools');
-			$syncTool = new SyncTool();
-			$HttpSocket = $syncTool->setupHttpSocket($server);
+			$SyncTool = new SyncTool();
+			$HttpSocket = $SyncTool->setupHttpSocket($server);
 		}
 		$uri = $server['Server']['url'] . '/servers/getVersion';
 		$request = array(
@@ -2450,9 +2450,9 @@ class Server extends AppModel {
 		$proxy = Configure::read('Proxy');
 		if (!empty($proxy['host'])) {
 			App::uses('SyncTool', 'Tools');
-			$syncTool = new SyncTool();
+			$SyncTool = new SyncTool();
 			try {
-				$HttpSocket = $syncTool->setupHttpSocket();
+				$HttpSocket = $SyncTool->setupHttpSocket();
 				$proxyResponse = $HttpSocket->get('http://www.example.com/');
 			} catch (Exception $e) {
 				$proxyStatus = 2;
@@ -2794,8 +2794,8 @@ class Server extends AppModel {
 			'conditions' => array('Server.id' => $id),
 		));
 		App::uses('SyncTool', 'Tools');
-		$syncTool = new SyncTool();
-		$HttpSocket = $syncTool->setupHttpSocket($server);
+		$SyncTool = new SyncTool();
+		$HttpSocket = $SyncTool->setupHttpSocket($server);
 		$request = array(
 				'header' => array(
 						'Authorization' => $server['Server']['authkey'],
@@ -2838,8 +2838,8 @@ class Server extends AppModel {
 				'conditions' => array('Server.id' => $serverId),
 		));
 		App::uses('SyncTool', 'Tools');
-		$syncTool = new SyncTool();
-		$HttpSocket = $syncTool->setupHttpSocket($server);
+		$SyncTool = new SyncTool();
+		$HttpSocket = $SyncTool->setupHttpSocket($server);
 		$request = array(
 				'header' => array(
 						'Authorization' => $server['Server']['authkey'],
