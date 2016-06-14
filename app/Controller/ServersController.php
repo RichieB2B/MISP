@@ -579,10 +579,10 @@ class ServersController extends AppController {
 			$destpath = APP . "files" . DS . "certs" . DS;
 			$dir = new Folder(APP . "files" . DS . "certs", true);
 			if (!preg_match('@^[\w-,\s,\.]+\.[A-Za-z0-9_]{2,4}$@', $server['Server'][$subm]['name'])) throw new Exception ('Filename not allowed');
-			$pemfile = new File($destpath . $id . '.' . $ins . $ext);
+			$pemfile = new File($destpath . $id . $ins . '.' . $ext);
 			$result = $pemfile->write($pemData);
 			$s = $this->Server->read(null, $id);
-			$s['Server'][$attr] = $s['Server']['id'] . '.' . $ins . $ext;
+			$s['Server'][$attr] = $s['Server']['id'] . $ins . '.' . $ext;
 			if ($result) $this->Server->save($s);
 		} else {
 			$s = $this->Server->read(null, $id);
