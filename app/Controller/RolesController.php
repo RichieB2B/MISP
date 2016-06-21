@@ -13,7 +13,8 @@ class RolesController extends AppController {
 
 	public $components = array(
 		'Security',
-		'Session', 'AdminCrud' // => array('fields' => array('name'))
+		'Session',
+		'AdminCrud' // => array('fields' => array('name'))
 	);
 
 	public $helpers = array('Js' => array('Jquery'));
@@ -39,7 +40,6 @@ class RolesController extends AppController {
  */
 	public function view($id = null) {
 		$this->Role->id = $id;
-		//$this->Acl->allow($this->Role, 'controllers/Events/add');
 		if (!$this->Role->exists()) {
 			throw new NotFoundException(__('Invalid role'));
 		}
@@ -54,7 +54,7 @@ class RolesController extends AppController {
  * @return void
  */
 	public function admin_add() {
-		if(!$this->_isSiteAdmin()) $this->redirect(array('controller' => 'roles', 'action' => 'index', 'admin' => false));
+		if (!$this->_isSiteAdmin()) $this->redirect(array('controller' => 'roles', 'action' => 'index', 'admin' => false));
 		if ($this->request->is('post')) {
 			$this->Role->create();
 			if ($this->Role->save($this->request->data)) {
@@ -70,7 +70,6 @@ class RolesController extends AppController {
 		}
 		$this->set('permFlags', $this->Role->permFlags);
 		$this->set('options', $this->options);
-		//$this->AdminCrud->adminAdd();
 	}
 
 /**
@@ -79,7 +78,7 @@ class RolesController extends AppController {
  * @return void
  */
 	public function admin_index() {
-		if(!$this->_isSiteAdmin()) $this->redirect(array('controller' => 'roles', 'action' => 'index', 'admin' => false));
+		if (!$this->_isSiteAdmin()) $this->redirect(array('controller' => 'roles', 'action' => 'index', 'admin' => false));
 		$this->AdminCrud->adminIndex();
 		$this->set('permFlags', $this->Role->permFlags);
 		$this->set('options', $this->options);
@@ -93,7 +92,7 @@ class RolesController extends AppController {
  * @throws NotFoundException
  */
 	public function admin_edit($id = null) {
-		if(!$this->_isSiteAdmin()) $this->redirect(array('controller' => 'roles', 'action' => 'index', 'admin' => false));
+		if (!$this->_isSiteAdmin()) $this->redirect(array('controller' => 'roles', 'action' => 'index', 'admin' => false));
 		$this->AdminCrud->adminEdit($id);
 		$passAlong = $this->Role->read(null, $id);
 		$this->set('options', $this->options);

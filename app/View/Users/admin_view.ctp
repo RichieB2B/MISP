@@ -1,11 +1,11 @@
 <?php
 $buttonAddStatus = $isAclAdd ? 'button_on':'button_off';
-$mayModify = ($isSiteAdmin || ($isAdmin && ($user['User']['org'] == $me['org'])));
+$mayModify = ($isSiteAdmin || ($isAdmin && ($user['User']['org_id'] == $me['org_id'])));
 $buttonModifyStatus = $mayModify ? 'button_on':'button_off';
 ?>
 <div class="users view">
 <h2><?php  echo __('User');?></h2>
-	<dl style="width:600px;">
+	<dl style="width:700px;">
 		<dt><?php echo __('Id'); ?></dt>
 		<dd>
 			<?php echo h($user['User']['id']); ?>
@@ -48,15 +48,16 @@ $buttonModifyStatus = $mayModify ? 'button_on':'button_off';
 			<?php echo h($user2['User']['email']); ?>
 			&nbsp;
 		</dd>
-		<dt><?php echo __('Gpgkey'); ?></dt>
-			<dd>
-				<?php
-if (h($user['User']['gpgkey'])) {
-						echo "<code>" . nl2br(h($user['User']['gpgkey'])) . "</code>";
-} else {
-						echo "N/A";
-}?>
+		<dt><?php echo __('PGP key'); ?></dt>
+		<dd class="red">
+			<?php echo (h($user['User']['gpgkey'])) ? $this->Utility->space2nbsp(nl2br(h($user['User']['gpgkey']))) : "N/A"; ?>
+		</dd>
+		<?php if (Configure::read('SMIME.enabled')): ?>
+			<dt><?php echo __('SMIME Public certificate'); ?></dt>
+			<dd class="red">
+				<?php echo (h($user['User']['certif_public'])) ? $this->Utility->space2nbsp(nl2br(h($user['User']['certif_public']))) : "N/A"; ?>
 			</dd>
+		<?php endif; ?>
 		<dt><?php echo __('Nids Sid'); ?></dt>
 		<dd>
 			<?php echo h($user['User']['nids_sid']); ?>
@@ -84,7 +85,7 @@ if (h($user['User']['change_pw']) == 1) {
 		</dd>
 		<dt><?php echo __('Newsread'); ?></dt>
 		<dd>
-			<?php echo h($user['User']['newsread']); ?>
+			<?php echo $user['User']['newsread'] ? date('Y/m/d H:i:s', h($user['User']['newsread'])) : 'N/A'; ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('Disabled'); ?></dt>

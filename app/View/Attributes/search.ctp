@@ -7,7 +7,7 @@
 			echo $this->Form->input('keyword', array('type' => 'textarea', 'label' => 'Containing the following expressions', 'div' => 'clear', 'class' => 'input-xxlarge'));
 			echo $this->Form->input('keyword2', array('type' => 'textarea', 'label' => 'Being attributes of the following event IDs or event UUIDs', 'div' => 'clear', 'class' => 'input-xxlarge'));
 			echo $this->Form->input('tags', array('type' => 'textarea', 'label' => 'Being an attribute of an event matching the following tags', 'div' => 'clear', 'class' => 'input-xxlarge'));
-			
+
 		?>
 		<?php
 			if (Configure::read('MISP.showorg') || $isAdmin)
@@ -28,7 +28,7 @@
 		<?php
 			echo $this->Form->input('ioc', array(
 				'type' => 'checkbox',
-				'label' => 'Only find valid IOCs',
+				'label' => 'Only find IOCs to use in IDS',
 			));
 			echo $this->Form->input('alternate', array(
 					'type' => 'checkbox',
@@ -196,7 +196,7 @@ $(document).ready(function() {
 
 });
 </script>
-<?php 
+<?php
 	echo $this->element('side_menu', array('menuList' => 'event-collection', 'menuItem' => 'searchAttributes'));
 ?>
 <?php echo $this->Js->writeBuffer(); // Write cached scripts ?>

@@ -1,7 +1,6 @@
-<?php 
+<?php
 App::uses('Folder', 'Utility');
 App::uses('File', 'Utility');
-//App::uses('AppShell', 'Console/Command');
 require_once 'AppShell.php';
 class EventShell extends AppShell
 {
@@ -24,8 +23,6 @@ class EventShell extends AppShell
 				'message' => 'Job created.',
 		);
 		$this->Job->save($data);
-		//$jobID = $this->Job->id;
-		//$this->Job->add('default', 'Publish', 'Event published: ' . $id);
 		// update the event and set the from field to the current instance's organisation from the bootstrap. We also need to save id and info for the logs.
 		$this->Event->recursive = -1;
 		$event = $this->Event->read(null, $id);
@@ -36,15 +33,14 @@ class EventShell extends AppShell
 		$this->Job->saveField('status', 1);
 		$this->Job->saveField('message', 'Job done.');
 	}
-	
+
 	public function cachexml() {
-		$user_id = $this->args[0];
+		$userId = $this->args[0];
 		$id = $this->args[1];
-		$user = $this->User->getAuthUser($user_id);
+		$user = $this->User->getAuthUser($userId);
 		$this->Job->id = $id;
 		// TEMP: change to passing an options array with the user!!
 		$eventIds = $this->Event->fetchEventIds($user);
-		$result = array();
 		$eventCount = count($eventIds);
 		$dir = new Folder(APP . 'tmp/cached_exports/xml', true, 0750);
 		if ($user['Role']['perm_site_admin']) {
@@ -54,8 +50,6 @@ class EventShell extends AppShell
 		}
 		App::uses('XMLConverterTool', 'Tools');
 		$converter = new XMLConverterTool();
-		$toEscape = array("&", "<", ">", "\"", "'");
-		$escapeWith = array('&amp;', '&lt;', '&gt;', '&quot;', '&apos;');
 		$file->write('<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL . '<response>');
 		if (!empty($eventIds)) {
 			foreach ($eventIds as $k => $eventId) {
@@ -70,7 +64,7 @@ class EventShell extends AppShell
 		$file->append('</response>' . PHP_EOL);
 		$file->close();
 	}
-	
+
 	private function __recursiveEcho($array) {
 		$text = "";
 		foreach ($array as $k => $v) {
@@ -93,10 +87,10 @@ class EventShell extends AppShell
 		}
 		return $text;
 	}
-	
+
 	public function cachehids() {
-		$user_id = $this->args[0];
-		$user = $this->User->getAuthUser($user_id);
+		$userId = $this->args[0];
+		$user = $this->User->getAuthUser($userId);
 		$id = $this->args[1];
 		$this->Job->id = $id;
 		$extra = $this->args[2];
@@ -117,10 +111,10 @@ class EventShell extends AppShell
 		$this->Job->saveField('progress', '100');
 		$this->Job->saveField('message', 'Job done.');
 	}
-	
+
 	public function cacherpz() {
-		$user_id = $this->args[0];
-		$user = $this->User->getAuthUser($user_id);
+		$userId = $this->args[0];
+		$user = $this->User->getAuthUser($userId);
 		$id = $this->args[1];
 		$this->Job->id = $id;
 		$extra = $this->args[2];
@@ -155,10 +149,10 @@ class EventShell extends AppShell
 		$this->Job->saveField('progress', '100');
 		$this->Job->saveField('message', 'Job done.');
 	}
-	
+
 	public function cachecsv() {
-		$user_id = $this->args[0];
-		$user = $this->User->getAuthUser($user_id);
+		$userId = $this->args[0];
+		$user = $this->User->getAuthUser($userId);
 		$id = $this->args[1];
 		$this->Job->id = $id;
 		$extra = $this->args[2];
@@ -191,13 +185,12 @@ class EventShell extends AppShell
 		$this->Job->saveField('progress', '100');
 		$this->Job->saveField('message', 'Job done.');
 	}
-	
+
 	public function cachetext() {
-		$user_id = $this->args[0];
-		$user = $this->User->getAuthUser($user_id);
+		$userId = $this->args[0];
+		$user = $this->User->getAuthUser($userId);
 		$id = $this->args[1];
 		$this->Job->id = $id;
-		$extra = $this->args[2];
 		$types = array_keys($this->Attribute->typeDefinitions);
 		$typeCount = count($types);
 		$dir = new Folder(APP . DS . '/tmp/cached_exports/text', true, 0750);
@@ -218,14 +211,13 @@ class EventShell extends AppShell
 		$this->Job->saveField('progress', 100);
 		$this->Job->saveField('message', 'Job done.');
 	}
-	
+
 	public function cachenids() {
-		$user_id = $this->args[0];
-		$user = $this->User->getAuthUser($user_id);
+		$userId = $this->args[0];
+		$user = $this->User->getAuthUser($userId);
 		$id = $this->args[1];
 		$this->Job->id = $id;
 		$format = $this->args[2];
-		$sid = $this->args[3];
 		$eventIds = array_values($this->Event->fetchEventIds($user, false, false, false, true));
 		$eventCount = count($eventIds);
 		$dir = new Folder(APP . DS . '/tmp/cached_exports/' . $format, true, 0750);
@@ -252,7 +244,7 @@ class EventShell extends AppShell
 		$this->Job->saveField('progress', '100');
 		$this->Job->saveField('message', 'Job done.');
 	}
-	
+
 	public function alertemail() {
 		$userId = $this->args[0];
 		$processId = $this->args[1];
@@ -264,7 +256,7 @@ class EventShell extends AppShell
 		$job['Job']['message'] = 'Emails sent.';
 		$this->Job->save($job);
 	}
-	
+
 	public function contactemail() {
 		$id = $this->args[0];
 		$message = $this->args[1];
@@ -274,34 +266,31 @@ class EventShell extends AppShell
 		$processId = $this->args[5];
 		$this->Job->id = $processId;
 		$user = $this->User->getAuthUser($userId);
-		$eventId = $this->args[2];
 		$result = $this->Event->sendContactEmail($id, $message, $all, array('User' => $user), $isSiteAdmin);
 		$this->Job->saveField('progress', '100');
 		if ($result != true) $this->Job->saveField('message', 'Job done.');
 	}
 
 	public function postsemail() {
-		$user_id = $this->args[0];
-		$post_id = $this->args[1];
-		$event_id = $this->args[2];
+		$userId = $this->args[0];
+		$postId = $this->args[1];
+		$eventId = $this->args[2];
 		$title = $this->args[3];
 		$message = $this->args[4];
 		$processId = $this->args[5];
 		$this->Job->id = $processId;
-		$user = $this->User->read(null, $user_id);
-		$eventId = $this->args[2];
-		$result = $this->Post->sendPostsEmail($user_id, $post_id, $event_id, $title, $message);
+		$result = $this->Post->sendPostsEmail($userId, $postId, $eventId, $title, $message);
 		$job['Job']['progress'] = 100;
 		$job['Job']['message'] = 'Emails sent.';
 		$this->Job->save($job);
 	}
-	
+
 	public function enqueueCaching() {
 		$timestamp = $this->args[0];
 		$task = $this->Task->findByType('cache_exports');
-		
+
 		// If the next execution time and the timestamp don't match, it means that this task is no longer valid as the time for the execution has since being scheduled
-		// been updated. 
+		// been updated.
 		if ($task['Task']['next_execution_time'] != $timestamp) return;
 
 		$users = $this->User->find('all', array(
@@ -312,7 +301,7 @@ class EventShell extends AppShell
 				),
 				'contain' => array(
 						'Organisation' => array('fields' => array('name')),
-						'Role' => array('fields' => array('perm_site_admin'))	
+						'Role' => array('fields' => array('perm_site_admin'))
 				),
 				'fields' => array('User.org_id', 'User.id'),
 				'group' => array('User.org_id')
@@ -325,19 +314,19 @@ class EventShell extends AppShell
 				),
 				'contain' => array(
 						'Organisation' => array('fields' => array('name')),
-						'Role' => array('fields' => array('perm_site_admin'))	
+						'Role' => array('fields' => array('perm_site_admin'))
 				),
 				'fields' => array('User.org_id', 'User.id')
 		));
 		$users[] = $site_admin;
-		
+
 		if ($task['Task']['timer'] > 0)	$this->Task->reQueue($task, 'cache', 'EventShell', 'enqueueCaching', false, false);
-		
+
 		// Queue a set of exports for admins. This "ADMIN" organisation. The organisation of the admin users doesn't actually matter, it is only used to indentify
 		// the special cache files containing all events
 		$i = 0;
 		foreach ($users as $user) {
-			foreach($this->Event->export_types as $k => $type) {
+			foreach ($this->Event->export_types as $k => $type) {
 				$this->Job->cache($k, $user['User'], 'Events visible to: ' . ($user['Role']['perm_site_admin'] ? 'ADMIN' : $user['Organisation']['name']));
 				$i++;
 			}
@@ -345,7 +334,7 @@ class EventShell extends AppShell
 		$this->Task->id = $task['Task']['id'];
 		$this->Task->saveField('message', $i . ' job(s) started at ' . date('d/m/Y - H:i:s') . '.');
 	}
-	
+
 	public function publish() {
 		$id = $this->args[0];
 		$passAlong = $this->args[1];
@@ -353,7 +342,6 @@ class EventShell extends AppShell
 		$userId = $this->args[3];
 		$user = $this->User->getAuthUser($userId);
 		$job = $this->Job->read(null, $jobId);
-		$eventId = $this->args[2];
 		$this->Event->Behaviors->unload('SysLogLogable.SysLogLogable');
 		$result = $this->Event->publish($id, $passAlong);
 		$job['Job']['progress'] = 100;
@@ -369,4 +357,3 @@ class EventShell extends AppShell
 	}
 
 }
-

@@ -30,14 +30,14 @@ echo $this->Paginator->next(__('next') . ' &raquo;', array('tag' => 'li', 'escap
 			<th class="actions">Actions</th>
 	</tr>
 	<?php
-foreach ($sharingGroups as $k => $sharingGroup): 
+foreach ($sharingGroups as $k => $sharingGroup):
 ?>
 	<tr>
 		<td class="short"><?php echo h($sharingGroup['SharingGroup']['id']); ?></td>
 		<td class="short"><?php echo h($sharingGroup['SharingGroup']['name']); ?></td>
 		<td class="short"><a href="/organisations/view/<?php echo h($sharingGroup['Organisation']['id']);?>"><?php echo h($sharingGroup['Organisation']['name']); ?></a></td>
 		<td><?php echo h($sharingGroup['SharingGroup']['description']); ?></td>
-		<?php 
+		<?php
 			$combined = "";
 			$combined .= "Organisations:";
 			if (count($sharingGroup['SharingGroupOrg']) == 0) $combined .= "<br />N/A";
@@ -58,7 +58,7 @@ foreach ($sharingGroups as $k => $sharingGroup):
 			}
 		?>
 		<td>
-			<span data-toggle="popover" title="Distribution List" data-content="<?php echo $combined; ?>">
+			<span data-toggle="popover" data-trigger="hover" title="Distribution List" data-content="<?php echo $combined; ?>">
 				<?php echo h($sharingGroup['SharingGroup']['releasability']); ?>
 			</span>
 		</td>
@@ -90,11 +90,11 @@ endforeach; ?>
         </ul>
     </div>
 </div>
-<script type="text/javascript"> 
+<script type="text/javascript">
 	$(document).ready(function(){
 		popoverStartup();
 	});
 </script>
-<?php 
+<?php
 	echo $this->element('side_menu', array('menuList' => 'globalActions', 'menuItem' => 'indexSG'));
 ?>

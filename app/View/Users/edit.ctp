@@ -14,7 +14,8 @@
 		echo $this->Form->input('gpgkey', array('label' => 'GPG key', 'div' => 'clear', 'class' => 'input-xxlarge'));
 		?>
 			<div class="clear"><span onClick="lookupPGPKey('UserEmail');" class="btn btn-inverse" style="margin-bottom:10px;">Fetch GPG key</span></div>
-		<?php 
+		<?php
+		if (Configure::read('SMIME.enabled')) echo $this->Form->input('certif_public', array('label' => 'SMIME Public certificate (PEM format)', 'div' => 'clear', 'class' => 'input-xxlarge'));
 		echo $this->Form->input('autoalert', array('label' => 'Receive alerts when events are published'));
 		echo $this->Form->input('contactalert', array('label' => 'Receive alerts from "contact reporter" requests'));
 	?>
@@ -22,7 +23,7 @@
 <?php echo $this->Form->button(__('Submit'), array('class' => 'btn btn-primary'));
 echo $this->Form->end();?>
 </div>
-<?php 
+<?php
 	$user['User']['id'] = $id;
 	echo $this->element('side_menu', array('menuList' => 'globalActions', 'menuItem' => 'edit', 'user' => $user));
 ?>

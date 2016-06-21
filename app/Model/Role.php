@@ -70,11 +70,12 @@ class Role extends AppModel {
 		'perm_audit' => array('id' => 'RolePermAudit', 'text' => 'Audit Actions'),
 		'perm_auth' => array('id' => 'RolePermAuth', 'text' => 'Auth key access'),
 		'perm_regexp_access' => array('id' => 'RolePermRegexpAccess', 'text' => 'Regex Actions'),
-		'perm_tagger' => array('id' => 'RolePermTagger', 'text' => 'Tag Editor'),
+		'perm_tagger' => array('id' => 'RolePermTagger', 'text' => 'Tagger'),
+		'perm_tag_editor' => array('id' => 'RolePermTagEditor', 'text' => 'Tag Editor'),
 		'perm_template' => array('id' => 'RolePermTemplate', 'text' => 'Template Editor'),
 		'perm_sharing_group' => array('id' => 'RolePermSharingGroup', 'text' => 'Sharing Group Editor'),
 	);
-	
+
 	public $premissionLevelName = array('Read Only', 'Manage Own Events', 'Manage Organisation Events', 'Manage and Publish Organisation Events');
 
 	public function beforeSave($options = array()) {

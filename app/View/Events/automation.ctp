@@ -28,15 +28,15 @@ You can <?php echo $this->Html->link('reset', array('controller' => 'users', 'ac
 <p>
 <b>eventid</b>: Restrict the download to a single event<br />
 <b>withattachments</b>: A boolean field that determines whether attachments should be encoded and a second parameter that controls the eligible tags. <br />
-<b>tags</b>: To include a tag in the results just write its names into this parameter. To exclude a tag prepend it with a '!'. 
-You can also chain several tag commands together with the '&amp;&amp;' operator. Please be aware the colons (:) cannot be used in the tag search. 
+<b>tags</b>: To include a tag in the results just write its names into this parameter. To exclude a tag prepend it with a '!'.
+You can also chain several tag commands together with the '&amp;&amp;' operator. Please be aware the colons (:) cannot be used in the tag search.
 Use semicolons instead (the search will automatically search for colons instead). For example, to include tag1 and tag2 but exclude tag3 you would use:<br />
 </p>
 <pre><?php echo $baseurl;?>/events/xml/download/false/true/tag1&amp;&amp;tag2&amp;&amp;!tag3</pre>
 <p>
-<b>from</b>: Events with the date set to a date after the one specified in the from field (format: 2015-02-15)<br />
-<b>to</b>: Events with the date set to a date before the one specified in the to field (format: 2015-02-15)<br />
-<b>last</b>: Events published within the last x amount of time, where x can be defined in days, hours, minutes (for example 5d or 12h or 30m)<br />
+<b>from</b>: Events with the date set to a date after the one specified in the from field (format: 2015-02-15). This filter will use the date of the event.<br />
+<b>to</b>: Events with the date set to a date before the one specified in the to field (format: 2015-02-15). This filter will use the date of the event.<br />
+<b>last</b>: Events published within the last x amount of time, where x can be defined in days, hours, minutes (for example 5d or 12h or 30m). This filter will use the published timestamp of the event.<br />
 </p>
 <p>The keywords false or null should be used for optional empty parameters in the URL.</p>
 <p>Also check out the <a href="<?php echo $baseurl;?>/pages/display/doc/using_the_system#rest">User Guide</a> to read about the REST API.</p>
@@ -46,12 +46,12 @@ Use semicolons instead (the search will automatically search for colons instead)
 <p>You can configure your tools to automatically download the following file:</p>
 <pre><?php echo $baseurl;?>/events/csv/download/</pre>
 <p>You can specify additional flags for CSV exports as follows::</p>
-<pre><?php echo $baseurl;?>/events/csv/download/[eventid]/[ignore]/[tags]/[category]/[type]/[includeContext]/[from]/[to]/[last]</pre>
+<pre><?php echo $baseurl;?>/events/csv/download/[eventid]/[ignore]/[tags]/[category]/[type]/[includeContext]/[from]/[to]/[last]/[headerless]</pre>
 <p>
 <b>eventid</b>: Restrict the download to a single event<br />
 <b>ignore</b>: Setting this flag to true will include attributes that are not marked "to_ids".<br />
-<b>tags</b>: To include a tag in the results just write its names into this parameter. To exclude a tag prepend it with a '!'. 
-You can also chain several tag commands together with the '&amp;&amp;' operator. Please be aware the colons (:) cannot be used in the tag search. 
+<b>tags</b>: To include a tag in the results just write its names into this parameter. To exclude a tag prepend it with a '!'.
+You can also chain several tag commands together with the '&amp;&amp;' operator. Please be aware the colons (:) cannot be used in the tag search.
 Use semicolons instead (the search will automatically search for colons instead). For example, to include tag1 and tag2 but exclude tag3 you would use:<br />
 </p>
 <p>For example, to only download a csv generated of the "domain" type and the "Network activity" category attributes all events except for the one and further restricting it to events that are tagged "tag1" or "tag2" but not "tag3", only allowing attributes that are IDS flagged use the following syntax:</p>
@@ -60,9 +60,10 @@ Use semicolons instead (the search will automatically search for colons instead)
 <b>category</b>: The attribute category, any valid MISP attribute category is accepted.<br />
 <b>type</b>: The attribute type, any valid MISP attribute type is accepted.<br />
 <b>includeContext</b>: Include the event data with each attribute.<br />
-<b>from</b>: Events with the date set to a date after the one specified in the from field (format: 2015-02-15)<br />
-<b>to</b>: Events with the date set to a date before the one specified in the to field (format: 2015-02-15)<br />
-<b>last</b>: Events published within the last x amount of time, where x can be defined in days, hours, minutes (for example 5d or 12h or 30m)<br />
+<b>from</b>: Events with the date set to a date after the one specified in the from field (format: 2015-02-15). This filter will use the date of the event.<br />
+<b>to</b>: Events with the date set to a date before the one specified in the to field (format: 2015-02-15). This filter will use the date of the event.<br />
+<b>last</b>: Events published within the last x amount of time, where x can be defined in days, hours, minutes (for example 5d or 12h or 30m).This filter will use the published timestamp of the event.<br />
+<b>headerless</b>: The CSV created when this setting is set to true will not contain the header row.
 </p>
 <p>The keywords false or null should be used for optional empty parameters in the URL.</p>
 <p>To export the attributes of all events that are of the type "domain", use the following syntax:</p>
@@ -79,13 +80,13 @@ Use semicolons instead (the search will automatically search for colons instead)
 <b>format</b>: The export format, can be "suricata" or "snort"<br />
 <b>eventid</b>: Restrict the download to a single event<br />
 <b>frame</b>: Some commented out explanation framing the data. The reason to disable this would be if you would like to concatenate a list of exports from various select events in order to avoid unnecasary duplication of the comments.<br />
-<b>tags</b>: To include a tag in the results just write its names into this parameter. To exclude a tag prepend it with a '!'. 
-You can also chain several tag commands together with the '&amp;&amp;' operator. Please be aware the colons (:) cannot be used in the tag search. 
+<b>tags</b>: To include a tag in the results just write its names into this parameter. To exclude a tag prepend it with a '!'.
+You can also chain several tag commands together with the '&amp;&amp;' operator. Please be aware the colons (:) cannot be used in the tag search.
 Use semicolons instead (the search will automatically search for colons instead). For example, to include tag1 and tag2 but exclude tag3 you would use:<br />
 <pre><?php echo $baseurl;?>/events/nids/snort/download/false/false/tag1&amp;&amp;tag2&amp;&amp;!tag3</pre>
-<b>from</b>: Events with the date set to a date after the one specified in the from field (format: 2015-02-15)<br />
-<b>to</b>: Events with the date set to a date before the one specified in the to field (format: 2015-02-15)<br />
-<b>last</b>: Events published within the last x amount of time, where x can be defined in days, hours, minutes (for example 6d or 12h or 30m)<br />
+<b>from</b>: Events with the date set to a date after the one specified in the from field (format: 2015-02-15). This filter will use the date of the event.<br />
+<b>to</b>: Events with the date set to a date before the one specified in the to field (format: 2015-02-15). This filter will use the date of the event.<br />
+<b>last</b>: Events published within the last x amount of time, where x can be defined in days, hours, minutes (for example 6d or 12h or 30m). This filter will use the published timestamp of the event.<br />
 <p>The keywords false or null should be used for optional empty parameters in the URL.</p>
 <p>An example for a suricata export for all events excluding those tagged tag1, without all of the commented information at the start of the file would look like this:</p>
 <pre><?php echo $baseurl;?>/events/nids/suricata/download/null/true/!tag1</pre>
@@ -101,14 +102,14 @@ Use semicolons instead (the search will automatically search for colons instead)
 <p>The API's full format is as follows: </p>
 <pre><?php echo $baseurl;?>/events/hids/[format]/download/[tags]/[from]/[to]/[last]</pre>
 <b>format</b>: The export format, can be "md5" or "sha1"<br />
-<b>tags</b>: To include a tag in the results just write its names into this parameter. To exclude a tag prepend it with a '!'. 
-You can also chain several tag commands together with the '&amp;&amp;' operator. Please be aware the colons (:) cannot be used in the tag search. 
+<b>tags</b>: To include a tag in the results just write its names into this parameter. To exclude a tag prepend it with a '!'.
+You can also chain several tag commands together with the '&amp;&amp;' operator. Please be aware the colons (:) cannot be used in the tag search.
 Use semicolons instead (the search will automatically search for colons instead). For example, to include tag1 and tag2 but exclude tag3 you would use:<br />
 <pre><?php echo $baseurl;?>/events/hids/md5/download/tag1&amp;&amp;tag2&amp;&amp;!tag3</pre>
 <p>
-<b>from</b>: Events with the date set to a date after the one specified in the from field (format: 2015-02-15)<br />
-<b>to</b>: Events with the date set to a date before the one specified in the to field (format: 2015-02-15)<br />
-<b>last</b>: Events published within the last x amount of time, where x can be defined in days, hours, minutes (for example 5d or 12h or 30m)<br />
+<b>from</b>: Events with the date set to a date after the one specified in the from field (format: 2015-02-15). This filter will use the date of the event. <br />
+<b>to</b>: Events with the date set to a date before the one specified in the to field (format: 2015-02-15). This filter will use the date of the event.<br />
+<b>last</b>: Events published within the last x amount of time, where x can be defined in days, hours, minutes (for example 5d or 12h or 30m). This filter will use the published timestamp of the event.<br />
 </p>
 <p>The keywords false or null should be used for optional empty parameters in the URL.</p>
 <p>For example, to only show sha1 values from events tagged tag1, use:</p>
@@ -122,15 +123,15 @@ Use semicolons instead (the search will automatically search for colons instead)
 <p>
 <b>id</b>: The event's ID<br />
 <b>withAttachments</b>: Encode attachments where applicable<br />
-<b>tags</b>: To include a tag in the results just write its names into this parameter. To exclude a tag prepend it with a '!'. 
-You can also chain several tag commands together with the '&amp;&amp;' operator. Please be aware the colons (:) cannot be used in the tag search. 
+<b>tags</b>: To include a tag in the results just write its names into this parameter. To exclude a tag prepend it with a '!'.
+You can also chain several tag commands together with the '&amp;&amp;' operator. Please be aware the colons (:) cannot be used in the tag search.
 Use semicolons instead (the search will automatically search for colons instead). For example, to include tag1 and tag2 but exclude tag3 you would use:<br />
 </p>
 <pre><?php echo $baseurl;?>/events/stix/download/false/true/tag1&amp;&amp;tag2&amp;&amp;!tag3</pre>
 <p>
-<b>from</b>: Events with the date set to a date after the one specified in the from field (format: 2015-02-15)<br />
-<b>to</b>: Events with the date set to a date before the one specified in the to field (format: 2015-02-15)<br />
-<b>last</b>: Events published within the last x amount of time, where x can be defined in days, hours, minutes (for example 5d or 12h or 30m)<br />
+<b>from</b>: Events with the date set to a date after the one specified in the from field (format: 2015-02-15). This filter will use the date of the event.<br />
+<b>to</b>: Events with the date set to a date before the one specified in the to field (format: 2015-02-15). This filter will use the date of the event.<br />
+<b>last</b>: Events published within the last x amount of time, where x can be defined in days, hours, minutes (for example 5d or 12h or 30m). This filter will use the published timestamp of the event.<br />
 </p>
 <p>You can post an XML or JSON object containing additional parameters in the following formats:</p>
 <p>JSON:</p>
@@ -144,8 +145,8 @@ Use semicolons instead (the search will automatically search for colons instead)
 <p>You can export RPZ zone files for DNS level firewalling by using the RPZ export functionality of MISP. The file generated will include all of the IDS flagged domain, hostname and IP-src/IP-dst attribute values that you have access to.</p>
 <p>It is possible to further restrict the exported values using the following filters:</p>
 <p>
-	<b>tags</b>: To include a tag in the results just write its names into this parameter. To exclude a tag prepend it with a '!'. 
-	You can also chain several tag commands together with the '&amp;&amp;' operator. Please be aware the colons (:) cannot be used in the tag search when passed through the url. 
+	<b>tags</b>: To include a tag in the results just write its names into this parameter. To exclude a tag prepend it with a '!'.
+	You can also chain several tag commands together with the '&amp;&amp;' operator. Please be aware the colons (:) cannot be used in the tag search when passed through the url.
 	Use semicolons instead (the search will automatically search for colons instead).<br />
 	<b>id</b>: The event's ID<br />
 	<b>from</b>: Events with the date set to a date after the one specified in the from field (format: 2015-02-03)<br />
@@ -183,37 +184,37 @@ foreach ($sigTypes as $sigType) {
 </pre>
 <p>To restrict the results by tags, use the usual syntax. Please be aware the colons (:) cannot be used in the tag search. Use semicolons instead (the search will automatically search for colons instead). To get ip-src values from events tagged tag1 but not tag2 use:</p>
 <pre>
-<?php 
+<?php
 	echo $baseurl.'/attributes/text/download/ip-src/tag1&&!tag2';
 ?>
 </pre>
 
 <p>As of version 2.3.38, it is possible to restrict the text exports on two additional flags. The first allows the user to restrict based on event ID, whilst the second is a boolean switch allowing non IDS flagged attributes to be exported. Additionally, choosing "all" in the type field will return all eligible attributes. </p>
 <pre>
-<?php 
+<?php
 	echo $baseurl.'/attributes/text/download/[type]/[tags]/[event_id]/[allowNonIDS]/[from]/[to]/[last]';
 ?>
 </pre>
 <b>type</b>: The attribute type, any valid MISP attribute type is accepted.<br />
-<b>tags</b>: To include a tag in the results just write its names into this parameter. To exclude a tag prepend it with a '!'. 
-You can also chain several tag commands together with the '&amp;&amp;' operator. Please be aware the colons (:) cannot be used in the tag search. 
+<b>tags</b>: To include a tag in the results just write its names into this parameter. To exclude a tag prepend it with a '!'.
+You can also chain several tag commands together with the '&amp;&amp;' operator. Please be aware the colons (:) cannot be used in the tag search.
 Use semicolons instead (the search will automatically search for colons instead). For example, to include tag1 and tag2 but exclude tag3 you would use:<br />
 <pre>
-<?php 
+<?php
 	echo $baseurl.'/attributes/text/download/all/tag1&amp;&amp;tag2&amp;&amp;!tag3';
 ?>
 </pre>
 <p>
 <b>event_id</b>: Restrict the results to the given event IDs. <br />
 <b>allowNonIDS</b>: Allow attributes to be exported that are not marked as "to_ids".<br />
-<b>from</b>: Events with the date set to a date after the one specified in the from field (format: 2015-02-15)<br />
-<b>to</b>: Events with the date set to a date before the one specified in the to field (format: 2015-02-15)<br />
-<b>last</b>: Events published within the last x amount of time, where x can be defined in days, hours, minutes (for example 5d or 12h or 30m)<br />
+<b>from</b>: Events with the date set to a date after the one specified in the from field (format: 2015-02-15). This filter will use the date of the event.<br />
+<b>to</b>: Events with the date set to a date before the one specified in the to field (format: 2015-02-15). This filter will use the date of the event.<br />
+<b>last</b>: Events published within the last x amount of time, where x can be defined in days, hours, minutes (for example 5d or 12h or 30m). This filter will use the published timestamp of the event.<br />
 </p>
 <p>The keywords false or null should be used for optional empty parameters in the URL.</p>
 <p>For example, to retrieve all attributes for event #5, including non IDS marked attributes too, use the following line:</p>
 <pre>
-<?php 
+<?php
 	echo $baseurl.'/attributes/text/download/all/null/5/true';
 ?>
 </pre>
@@ -223,15 +224,15 @@ Use semicolons instead (the search will automatically search for colons instead)
 <p>To return an event with all of its attributes, relations, shadowAttributes, use the following syntax:</p>
 <pre>
 <?php
-	echo $baseurl.'/events/restSearch/download/[value]/[type]/[category]/[org]/[tag]/[quickfilter]/[from]/[to]/[last]';
+	echo $baseurl.'/events/restSearch/download/[value]/[type]/[category]/[org]/[tag]/[quickfilter]/[from]/[to]/[last]/[event_id]/[withAttachments]';
 ?>
 </pre>
 <b>value</b>: Search for the given value in the attributes' value field.<br />
 <b>type</b>: The attribute type, any valid MISP attribute type is accepted.<br />
 <b>category</b>: The attribute category, any valid MISP attribute category is accepted.<br />
 <b>org</b>: Search by the creator organisation by supplying the organisation idenfitier. <br />
-<b>tags</b>: To include a tag in the results just write its names into this parameter. To exclude a tag prepend it with a '!'. 
-You can also chain several tag commands together with the '&amp;&amp;' operator. Please be aware the colons (:) cannot be used in the tag search. 
+<b>tags</b>: To include a tag in the results just write its names into this parameter. To exclude a tag prepend it with a '!'.
+You can also chain several tag commands together with the '&amp;&amp;' operator. Please be aware the colons (:) cannot be used in the tag search.
 Use semicolons instead (the search will automatically search for colons instead). For example, to include tag1 and tag2 but exclude tag3 you would use:<br />
 <pre>
 <?php
@@ -239,10 +240,11 @@ Use semicolons instead (the search will automatically search for colons instead)
 ?>
 </pre>
 <b>quickfilter</b>: Enabling this (by passing "1" as the argument) will make the search ignore all of the other arguments, except for the auth key and value. MISP will return an xml / json (depending on the header sent) of all events that have a sub-string match on value in the event info, event orgc, or any of the attribute value1 / value2 fields, or in the attribute comment. <br />
-<b>from</b>: Events with the date set to a date after the one specified in the from field (format: 2015-02-15)<br />
-<b>to</b>: Events with the date set to a date before the one specified in the to field (format: 2015-02-15)<br />
-<b>last</b>: Events published within the last x amount of time, where x can be defined in days, hours, minutes (for example 5d or 12h or 30m)<br />
+<b>from</b>: Events with the date set to a date after the one specified in the from field (format: 2015-02-15). This filter will use the date of the event.<br />
+<b>to</b>: Events with the date set to a date before the one specified in the to field (format: 2015-02-15). This filter will use the date of the event.<br />
+<b>last</b>: Events published within the last x amount of time, where x can be defined in days, hours, minutes (for example 5d or 12h or 30m). This filter will use the published timestamp of the event.<br />
 <b>eventid</b>: The events that should be included / excluded from the search<br />
+<b>withAttachments</b>: If set, encodes the attachments / zipped malware samples as base64 in the data field within each attribute<br />
 <p>The keywords false or null should be used for optional empty parameters in the URL.</p>
 <p>For example, to find any event with the term "red october" mentioned, use the following syntax (the example is shown as a POST request instead of a GET, which is highly recommended):</p>
 <p>POST to:</p>
@@ -260,17 +262,18 @@ Use semicolons instead (the search will automatically search for colons instead)
 <b>type</b>: The attribute type, any valid MISP attribute type is accepted.<br />
 <b>category</b>: The attribute category, any valid MISP attribute category is accepted.<br />
 <b>org</b>: Search by the creator organisation by supplying the organisation idenfitier. <br />
-<b>tags</b>: To include a tag in the results just write its names into this parameter. To exclude a tag prepend it with a '!'. 
-You can also chain several tag commands together with the '&amp;&amp;' operator. Please be aware the colons (:) cannot be used in the tag search. 
+<b>tags</b>: To include a tag in the results just write its names into this parameter. To exclude a tag prepend it with a '!'.
+You can also chain several tag commands together with the '&amp;&amp;' operator. Please be aware the colons (:) cannot be used in the tag search.
 Use semicolons instead (the search will automatically search for colons instead).<br />
 <b>from</b>: Events with the date set to a date after the one specified in the from field (format: 2015-02-15)<br />
 <b>to</b>: Events with the date set to a date before the one specified in the to field (format: 2015-02-15)<br />
-<b>last</b>: Events published within the last x amount of time, where x can be defined in days, hours, minutes (for example 5d or 12h or 30m)<br />
-<b>eventid</b>: The events that should be included / excluded from the search<br /><br />
+<b>last</b>: Events published within the last x amount of time, where x can be defined in days, hours, minutes (for example 5d or 12h or 30m). This filter will use the published timestamp of the event.<br />
+<b>eventid</b>: The events that should be included / excluded from the search<br />
+<b>withAttachments</b>: If set, encodes the attachments / zipped malware samples as base64 in the data field within each attribute<br /><br />
 <p>The keywords false or null should be used for optional empty parameters in the URL.</p>
 <pre>
 <?php
-	echo $baseurl.'/attributes/restSearch/download/[value]/[type]/[category]/[org]/[tag]/[from]/[to]/[last]/[eventid]';
+	echo $baseurl.'/attributes/restSearch/download/[value]/[type]/[category]/[org]/[tag]/[from]/[to]/[last]/[eventid]/[withAttachments]';
 ?>
 </pre>
 <p>value, type, category and org are optional. It is possible to search for several terms in each category by joining them with the '&amp;&amp;' operator. It is also possible to negate a term with the '!' operator. Please be aware the colons (:) cannot be used in the tag search. Use semicolons instead (the search will automatically search for colons instead).
@@ -352,6 +355,7 @@ The event ID is optional. MISP will accept either a JSON or an XML object posted
 <b>info</b>: Used to populate the event info field if no event ID supplied. Alternatively, if not set, MISP will simply generate a message showing that it's a malware sample collection generated on the given day.<br />
 <b>analysis</b>: The analysis level of the newly created event, if applicatble. [0-2]<br />
 <b>threat_level_id</b>: The threat level ID of the newly created event, if applicatble. [0-3]<br />
+<b>comment</b>: This will populate the comment field of any attribute created using this API.<br />
 <h3>Add or remove tags from events</h3>
 <p>You can add or remove an existing tag from an event in the following way:</p>
 <pre>
@@ -361,9 +365,9 @@ The event ID is optional. MISP will accept either a JSON or an XML object posted
 <?php  echo $baseurl.'/events/removeTag'; ?>
 </pre>
 <p>Just POST a json object in the following format (to the appropriate API depending on whether you want to add or delete a tag from an event):</p>
-<code>{"request": {"Event": {"id": "228", "tag": "8"}}}</code><br /><br />
-<p>Where "tag" is the ID of the tag. You can also use the name of the tag the following way (has to be an exact match):</p>
-<code>{"request": {"Event": {"id": "228", "tag": "OSINT"}}}</code>
+<code>{"event":228, "tag":8}</code><br /><br />
+<p>Where "tag" is the ID of the tag. You can also use the name of the tag the following way:</p>
+<code>{"event":228, "tag":"OSINT"}</code>
 <h3>Proposals and the API</h3>
 <p>You can interact with the proposals via the API directly since version 2.3.148</p>
 
@@ -432,6 +436,6 @@ The event ID is optional. MISP will accept either a JSON or an XML object posted
 <code><?php echo h('<request><ShadowAttribute><value>5.5.5.5</value><to_ids>0</to_ids><type>ip-src</type><category>Network activity</category></ShadowAttribute></request>');?></code><br /><br />
 <p>None of the above fields are mandatory, but at least one of them has to be provided.</p>
 </div>
-<?php 
+<?php
 	echo $this->element('side_menu', array('menuList' => 'event-collection', 'menuItem' => 'automation'));
 ?>

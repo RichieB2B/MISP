@@ -1,4 +1,4 @@
-<?php 
+<?php
 class AppSchema extends CakeSchema {
 
 	public function before($event = array()) {
@@ -33,7 +33,7 @@ class AppSchema extends CakeSchema {
 		'username' => array('type' => 'string', 'null' => false, 'default' => null, 'collate' => 'utf8_bin', 'charset' => 'utf8'),
 		'expire' => array('type' => 'datetime', 'null' => false, 'default' => null),
 		'indexes' => array(
-			
+
 		),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_bin', 'engine' => 'MyISAM')
 	);
@@ -259,6 +259,7 @@ class AppSchema extends CakeSchema {
 		'authkey' => array('type' => 'string', 'null' => false, 'default' => null, 'length' => 40, 'collate' => 'utf8_bin', 'charset' => 'utf8'),
 		'invited_by' => array('type' => 'integer', 'null' => false, 'default' => null),
 		'gpgkey' => array('type' => 'text', 'null' => false, 'default' => null, 'collate' => 'utf8_bin', 'charset' => 'utf8'),
+		'certif_public' => array('type' => 'text', 'null' => false, 'default' => null, 'collate' => 'utf8_bin', 'charset' => 'utf8'),
 		'nids_sid' => array('type' => 'integer', 'null' => false, 'default' => null, 'length' => 15),
 		'termsaccepted' => array('type' => 'boolean', 'null' => false, 'default' => null),
 		'newsread' => array('type' => 'date', 'null' => false, 'default' => null),

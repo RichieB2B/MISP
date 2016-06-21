@@ -11,18 +11,15 @@ class HidsExport {
 			array_unshift($this->rules, '# Keep in mind MD5 is not collision resistant');
 		} else if ($type === 'SHA1') {
 			array_unshift($this->rules, '# Keep in mind SHA-1 still has a theoretical collision possibility');
-		}		
+		}
 		array_unshift($this->rules, '# These HIDS export contains ' . $type . ' checksums.');
 	}
 
 	public function export($items, $type = 'MD5', $continue = false) {
 		if (!empty($items)) {
 			foreach ($items as &$item) {
-				# md5
-				$ruleFormat = '%s';
-	
 				$attribute = &$item['Attribute'];
-	
+
 				switch ($attribute['type']) {
 					case 'md5':
 					case 'sha1':
@@ -37,7 +34,6 @@ class HidsExport {
 						break;
 					default:
 						break;
-	
 				}
 			}
 		}

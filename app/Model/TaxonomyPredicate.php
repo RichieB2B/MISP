@@ -9,10 +9,10 @@ class TaxonomyPredicate extends AppModel{
 
 	public $validate = array(
 		'value' => array(
-			'rule' => array('valueNotEmpty'),
+			'rule' => array('stringNotEmpty'),
 		),
 		'expanded' => array(
-			'rule' => array('valueNotEmpty'),
+			'rule' => array('stringNotEmpty'),
 		),
 	);
 
@@ -21,7 +21,7 @@ class TaxonomyPredicate extends AppModel{
 				'dependent' => true
 			)
 	);
-	
+
 	public function beforeValidate($options = array()) {
 		parent::beforeValidate();
 		return true;

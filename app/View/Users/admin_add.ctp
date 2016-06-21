@@ -4,8 +4,43 @@
 		<legend><?php echo __('Admin Add User'); ?></legend>
 	<?php
 		echo $this->Form->input('email');
-		echo $this->Form->input('password');
-		echo $this->Form->input('confirm_password', array('type' => 'password', 'div' => array('class' => 'input password required')));
+	?>
+		<div class="clear"></div>
+	<?php
+		$password = true;
+		if (Configure::read('Plugin.CustomAuth_enable')):
+			if (Configure::read('Plugin.CustomAuth_required')):
+				$password = false;
+			else:
+				$userType = Configure::read('Plugin.CustomAuth_name') ? Configure::read('Plugin.CustomAuth_name') : 'External authentication';
+				echo $this->Form->input('external_auth_required', array('type' => 'checkbox', 'label' => $userType . ' user'));
+			endif;
+
+	?>
+		<div class="clear"></div>
+		<div id="externalAuthDiv">
+		<?php
+			echo $this->Form->input('external_auth_key', array('type' => 'text'));
+		?>
+		</div>
+	<?php
+		endif;
+	?>
+	<div class="clear"></div>
+	<div id="passwordDivDiv">
+		<?php
+			echo $this->Form->input('enable_password', array('type' => 'checkbox', 'label' => 'Set password'));
+		?>
+		<div id="PasswordDiv">
+			<div class="clear"></div>
+			<?php
+				echo $this->Form->input('password');
+				echo $this->Form->input('confirm_password', array('type' => 'password', 'div' => array('class' => 'input password required')));
+			?>
+		</div>
+	</div>
+	<div class="clear"></div>
+	<?php
 		if ($isSiteAdmin) {
 			echo $this->Form->input('org_id', array(
 					'options' => $orgs,
@@ -13,25 +48,26 @@
 					'empty' => 'Choose organisation',
 			));
 		}
-		echo $this->Form->input('role_id', array('label' => 'Role', 'div' => 'input clear'));
-		echo $this->Form->input('authkey', array('value' => $authkey, 'readonly' => 'readonly'));
+		echo $this->Form->input('role_id', array('label' => 'Role'));
+		echo $this->Form->input('authkey', array('value' => $authkey, 'readonly' => 'readonly', 'div' => 'input clear'));
 		echo $this->Form->input('nids_sid');
 	?>
 		<div id = "syncServers" class="hidden">
-	<?php 
+	<?php
 			echo $this->Form->input('server_id', array('label' => 'Sync user for', 'div' => 'clear', 'options' => $servers));
 	?>
 		</div>
-	<?php 
+	<?php
 		echo $this->Form->input('gpgkey', array('label' => 'GPG key', 'div' => 'clear', 'class' => 'input-xxlarge'));
 	?>
 		<div class="clear"><span onClick="lookupPGPKey('UserEmail');" class="btn btn-inverse" style="margin-bottom:10px;">Fetch GPG key</span></div>
-	<?php 
+	<?php
+		if (Configure::read('SMIME.enabled')) echo $this->Form->input('certif_public', array('label' => 'Public certificate (Encryption -- PEM format)', 'div' => 'clear', 'class' => 'input-xxlarge'));
 		echo $this->Form->input('autoalert', array('label' => 'Receive alerts when events are published'));
 		echo $this->Form->input('contactalert', array('label' => 'Receive alerts from "contact reporter" requests'));
 	?>
 		<div class="clear"></div>
-	<?php 
+	<?php
 		echo $this->Form->input('disabled', array('label' => 'Disable this user account'));
 
 	?>
@@ -39,7 +75,7 @@
 <?php echo $this->Form->button(__('Submit'), array('class' => 'btn btn-primary'));
 	echo $this->Form->end();?>
 </div>
-<?php 
+<?php
 	echo $this->element('side_menu', array('menuList' => 'admin', 'menuItem' => 'addUser'));
 ?>
 <script type="text/javascript">
@@ -48,6 +84,14 @@ $(document).ready(function() {
 	syncUserSelected();
 	$('#UserRoleId').change(function() {
 		syncUserSelected();
+	});
+	checkUserPasswordEnabled();
+	checkUserExternalAuth();
+	$('#UserEnablePassword').change(function() {
+		checkUserPasswordEnabled();
+	});
+	$('#UserExternalAuthRequired').change(function() {
+		checkUserExternalAuth();
 	});
 });
 </script>

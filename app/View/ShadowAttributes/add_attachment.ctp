@@ -1,7 +1,7 @@
 <div class="shadow_attributes form">
 <?php echo $this->Form->create('ShadowAttribute', array('enctype' => 'multipart/form-data','onSubmit' => 'document.getElementById("ShadowAttributeMalware").removeAttribute("disabled");'));?>
 	<fieldset>
-			<legend><?php echo __('Add Attachment'); ?></legend>
+			<legend><?php echo __('Propose Attachment'); ?></legend>
 	<?php
 		echo $this->Form->hidden('event_id');
 		echo $this->Form->input('category');
@@ -36,11 +36,11 @@
 	echo $this->Form->end();
 ?>
 </div>
-<?php 
+<?php
 	$event['Event']['id'] = $this->request->data['ShadowAttribute']['event_id'];
 	echo $this->element('side_menu', array('menuList' => 'event', 'menuItem' => 'proposeAttachment', 'event' => $event));
 ?>
-	
+
 <script type="text/javascript">
 
 $(document).ready(function() {
@@ -105,4 +105,3 @@ $('#ShadowAttributeType').prop('disabled', true);
 
 </script>
 <?php echo $this->Js->writeBuffer(); // Write cached scripts
-	

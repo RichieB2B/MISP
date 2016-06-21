@@ -2,8 +2,9 @@
 	<?php
 		$title = $event['Event']['info'];
 		if (strlen($title) > 58) $title = substr($title, 0, 55) . '...';
+		$serverName = $server['Server']['name'] ? '"' . $server['Server']['name'] . '" (' . $server['Server']['url'] . ')' : '"' . $server['Server']['url'] . '"';
 	?>
-	<h4 class="visibleDL notPublished" >You are currently viewing an event on the remote instance "<?php echo h($server['Server']['name']); ?>" (@ <?php echo h($server['Server']['url']); ?>)</h4>
+	<h4 class="visibleDL notPublished" >You are currently viewing an event on the remote instance <?php echo h($serverName); ?></h4>
 	<div class="row-fluid">
 		<div class="span8">
 			<h2><?php echo nl2br(h($title)); ?></h2>
@@ -39,7 +40,7 @@
 				</dd>
 				<dt title="<?php echo $eventDescriptions['threat_level_id']['desc'];?>">Threat Level</dt>
 				<dd>
-					<?php 
+					<?php
 						echo h($threatLevels[$event['Event']['threat_level_id']]);
 					?>
 					&nbsp;
@@ -50,12 +51,12 @@
 					&nbsp;
 				</dd>
 				<dt>Distribution</dt>
-				<dd <?php if($event['Event']['distribution'] == 0) echo 'class = "privateRedText"';?> title = "<?php echo h($distributionDescriptions[$event['Event']['distribution']]['formdesc'])?>">
-					<?php 
+				<dd <?php if ($event['Event']['distribution'] == 0) echo 'class = "privateRedText"';?> title = "<?php echo h($distributionDescriptions[$event['Event']['distribution']]['formdesc'])?>">
+					<?php
 						if ($event['Event']['distribution'] == 4):
 					?>
-							<?php echo h($event['SharingGroup'][0]['name']); ?></a>
-					<?php 
+							<?php echo h($event['SharingGroup']['name']); ?></a>
+					<?php
 						else:
 							echo h($distributionLevels[$event['Event']['distribution']]);
 						endif;
@@ -66,7 +67,7 @@
 					<?php echo nl2br(h($event['Event']['info'])); ?>
 					&nbsp;
 				</dd>
-				<?php 
+				<?php
 					$published = '';
 					$notPublished = 'style="display:none;"';
 					if ($event['Event']['published'] == 0) {
@@ -76,28 +77,29 @@
 				?>
 						<dt class="published" <?php echo $published;?>>Published</dt>
 						<dd class="published green" <?php echo $published;?>>Yes</dd>
-				<?php 
+				<?php
 					if ($isAclPublish) :
 				?>
 						<dt class="visibleDL notPublished" <?php echo $notPublished;?>>Published</dt>
 						<dd class="visibleDL notPublished" <?php echo $notPublished;?>>No</dd>
-				<?php 
-					else: 
+				<?php
+					else:
 				?>
 						<dt class="notPublished" <?php echo $notPublished;?>>Published</dt>
 						<dd class="notPublished red" <?php echo $notPublished;?>>No</dd>
 				<?php endif; ?>
 			</dl>
 		</div>
-
 	<?php if (!empty($event['RelatedEvent'])):?>
 	<div class="related span4">
 		<h3>Related Events</h3>
 		<ul class="inline">
-			<?php foreach ($event['RelatedEvent'] as $relatedEvent): ?>
+			<?php foreach ($event['RelatedEvent'] as $relatedEvent):
+				if (isset($relatedEvent['Event'][0])) $relatedEvent['Event'] = $relatedEvent['Event'][0];
+			?>
 			<li>
-			<div title="<?php echo h($relatedEvent['Event'][0]['info']); ?>">
-			<a href = "<?php echo '/servers/previewEvent/' . $server['Server']['id'] . '/' . $relatedEvent['Event'][0]['id']; ?>"><?php echo h($relatedEvent['Event'][0]['date']) . ' (' . h($relatedEvent['Event'][0]['id']) . ')'; ?></a>
+			<div title="<?php echo h($relatedEvent['Event']['info']); ?>">
+			<a href = "<?php echo '/servers/previewEvent/' . $server['Server']['id'] . '/' . $relatedEvent['Event']['id']; ?>"><?php echo h($relatedEvent['Event']['date']) . ' (' . h($relatedEvent['Event']['id']) . ')'; ?></a>
 			</div></li>
 			<?php endforeach; ?>
 		</ul>
@@ -106,7 +108,7 @@
 	</div>
 	<br />
 	<div id="attributes_div">
-		<?php 
+		<?php
 			$all = false;
 			if (isset($this->params->params['paging']['Event']['page']) && $this->params->params['paging']['Event']['page'] == 0) $all = true;
 		?>
@@ -128,9 +130,9 @@
 					if ($all):
 				?>
 					<span class="red">view all</span>
-				<?php 
+				<?php
 					else:
-						echo $this->Paginator->link(__('view all'), 'all'); 
+						echo $this->Paginator->link(__('view all'), 'all');
 					endif;
 				?>
 			</li>
@@ -148,8 +150,8 @@
 					<th title="<?php echo $attrDescriptions['signature']['desc'];?>"><?php echo $this->Paginator->sort('to_ids', 'IDS');?></th>
 					<th title="<?php echo $attrDescriptions['distribution']['desc'];?>"><?php echo $this->Paginator->sort('distribution');?></th>
 				</tr>
-			    <?php 
-					foreach($event['objects'] as $k => $object):
+			    <?php
+					foreach ($event['objects'] as $k => $object):
 						$extra = $extra2 = $extra3 = '';
 						$currentType = 'denyForm';
 						if ($object['objectType'] == 0 ) {
@@ -185,24 +187,24 @@
 										<li style="padding-right: 0px; padding-left:0px;" title ="' . h($relatedAttribute['info']) . '"><span><a href="/servers/previewEvent/<?php echo h($server['Server']['id']); ?>/<?php echo h($event['Event']['id']); ?>"><?php echo h($event['Event']['id']); ?></a></span>
 							<?php
 									endforeach;
-								endif; 
+								endif;
 							?>
 							</ul>
 						</td>
 						<td class="shortish <?php echo $extra; ?>"><?php echo ($object['to_ids']) ? 'Yes' : 'No'; ?></td>
 						<td class="shortish <?php echo $extra; ?>">
-						<?php 
+						<?php
 							if ($object['objectType'] == 0) {
 								if ($object['distribution'] == 4):
 									echo h($object['SharingGroup']['name']);
-								else: 
-									echo h($distributionLevels[$object['distribution']]); 
+								else:
+									echo h($distributionLevels[$object['distribution']]);
 								endif;
 							}
 						?>&nbsp;
 						</td>
-					</tr>	
-				<?php 
+					</tr>
+				<?php
 					endforeach;
 				?>
 			</table>
@@ -225,9 +227,9 @@
 					if ($all):
 				?>
 					<span class="red">view all</span>
-				<?php 
+				<?php
 					else:
-						echo $this->Paginator->link(__('view all'), 'all'); 
+						echo $this->Paginator->link(__('view all'), 'all');
 					endif;
 				?>
 			</li>
@@ -241,7 +243,7 @@
 <script type="text/javascript">
 // tooltips
 $(document).ready(function () {
-	//loadEventTags("<?php echo $event['Event']['id']; ?>");	
+	//loadEventTags("<?php echo $event['Event']['id']; ?>");
 	$("th, td, dt, div, span, li").tooltip({
 		'placement': 'top',
 		'container' : 'body',

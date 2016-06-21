@@ -9,17 +9,17 @@ class TaxonomyEntry extends AppModel{
 
 	public $validate = array(
 		'value' => array(
-			'rule' => array('valueNotEmpty'),
+			'rule' => array('stringNotEmpty'),
 		),
 		'expanded' => array(
-			'rule' => array('valueNotEmpty'),
+			'rule' => array('stringNotEmpty'),
 		),
-	);	
-	
+	);
+
 	public $belongsTo = array(
 		'TaxonomyPredicate'
 	);
-	
+
 	public function beforeValidate($options = array()) {
 		parent::beforeValidate();
 		return true;

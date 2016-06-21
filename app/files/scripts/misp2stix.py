@@ -23,7 +23,7 @@ namespace = ['https://github.com/MISP/MISP', 'MISP']
 
 NS_DICT = {
 	"http://cybox.mitre.org/common-2" : 'cyboxCommon',
-	"http://cybox.mitre.org/cybox-2" : 'cybox',	
+	"http://cybox.mitre.org/cybox-2" : 'cybox',
 	"http://cybox.mitre.org/default_vocabularies-2" : 'cyboxVocabs',
 	"http://cybox.mitre.org/objects#ASObject-1" : 'ASObj',
 	"http://cybox.mitre.org/objects#AddressObject-2" : 'AddressObj',
@@ -99,6 +99,7 @@ non_indicator_attributes = ['text', 'comment', 'other', 'link', 'target-user', '
 def loadEvent(args, pathname):
     try:
         filename = pathname + "/tmp/" + args[1]
+        #filename = "tmp/" + args[1]
         tempFile = open(filename, 'r')
         events = json.loads(tempFile.read())
         return events
@@ -109,6 +110,7 @@ def loadEvent(args, pathname):
 def saveFile(args, pathname, package):
     try:
         filename = pathname + "/tmp/" + args[1] + ".out"
+        #filename = "test.out"
         with open(filename, 'w') as f:
             if args[2] == 'json':
                 f.write(package.to_json())
@@ -182,11 +184,6 @@ def resolveAttributes(incident, ttps, attributes):
         else:
             #types that may become indicators
             handleIndicatorAttribute(incident, ttps, attribute)
-    if incident.related_indicators and not ttps:
-        ttp = TTP(timestamp=incident.timestamp)
-        ttp.id_= incident.id_.replace("incident","ttp")
-        ttp.title = "Unknown"
-        ttps.append(ttp)
     for rindicator in incident.related_indicators:
         for ttp in ttps:
             ittp=TTP(idref=ttp.id_, timestamp=ttp.timestamp)
@@ -253,6 +250,11 @@ def generateTTP(incident, attribute, ttps):
         vulnerability = Vulnerability()
         vulnerability.cve_id = attribute["value"]
         et = ExploitTarget(timestamp=getDateFromTimestamp(int(attribute["timestamp"])))
+        et.id_= namespace[1] + ":et-" + attribute["uuid"]
+        if attribute["comment"] != "" and attribute["comment"] != "Imported via the freetext import.":
+            et.title = attribute["comment"]
+        else:
+            et.title = "Vulnerability " + attribute["value"]
         et.add_vulnerability(vulnerability)
         ttp.exploit_targets.append(et)
     else:
@@ -267,7 +269,7 @@ def generateTTP(incident, attribute, ttps):
     relatedTTP = RelatedTTP(rttp, relationship=attribute["category"])
     incident.leveraged_ttps.append(relatedTTP)
 
-# Threat actors are currently only used for the category:attribution / type:(text|comment|other) attributes 
+# Threat actors are currently only used for the category:attribution / type:(text|comment|other) attributes
 def generateThreatActor(attribute):
     ta = ThreatActor(timestamp=getDateFromTimestamp(int(attribute["timestamp"])))
     ta.id_= namespace[1] + ":threatactor-" + attribute["uuid"]
@@ -302,13 +304,13 @@ def getDateFromTimestamp(timestamp):
 def convertToStixDate(date):
     return getDateFromTimestamp(time.mktime(datetime.datetime.strptime(date, "%Y-%m-%d").timetuple()))
 
-# takes an object and adds the passed organisation as the information_source.identity to it. 
+# takes an object and adds the passed organisation as the information_source.identity to it.
 def setOrg(target, org):
     ident = Identity(name=org)
     information_source = InformationSource(identity = ident)
     target.information_source = information_source
 
-# takes an object and adds the passed tags as journal entries to it. 
+# takes an object and adds the passed tags as journal entries to it.
 def setTag(target, tags):
     for tag in tags:
         addJournalEntry(target, "MISP Tag: " + tag["name"])
@@ -357,4 +359,3 @@ def main(args):
 
 if __name__ == "__main__":
     main(sys.argv)
-

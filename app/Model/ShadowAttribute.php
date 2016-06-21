@@ -132,7 +132,7 @@ class ShadowAttribute extends AppModel {
 			),
 			'userdefined' => array(
 				'rule' => array('validateAttributeValue'),
-				'message' => 'Value not in the right type/format. Please double check the value or select "other" for a type.',
+				'message' => 'Value not in the right type/format. Please double check the value or select type "other".',
 			),
 		),
 		'to_ids' => array(
@@ -166,8 +166,8 @@ class ShadowAttribute extends AppModel {
 		$this->typeDefinitions = $this->Event->Attribute->typeDefinitions;
 	}
 
-	//The Associations below have been created with all possible keys, those that are not needed can be removed
-	
+	// The Associations below have been created with all possible keys, those that are not needed can be removed
+
 /**
  * beforeSave
  *
@@ -175,13 +175,11 @@ class ShadowAttribute extends AppModel {
  * @return bool always true
  */
 	public function beforeSave($options = array()) {
-
 		// explode value of composite type in value1 and value2
 		// or copy value to value1 if not composite type
 		if (!empty($this->data['ShadowAttribute']['type'])) {
 			$compositeTypes = $this->getCompositeTypes();
 			// explode composite types in value1 and value2
-			//if (!isset($this->data['ShadowAttribute']['value1'])) {
 			$pieces = explode('|', $this->data['ShadowAttribute']['value']);
 			if (in_array($this->data['ShadowAttribute']['type'], $compositeTypes)) {
 				if (2 != count($pieces)) {
@@ -195,8 +193,67 @@ class ShadowAttribute extends AppModel {
 				$this->data['ShadowAttribute']['value2'] = '';
 			}
 		}
-		// always return true after a beforeSave()
+		if (!isset($this->data['ShadowAttribute']['deleted'])) $this->data['ShadowAttribute']['deleted'] = false;
+		if ($this->data['ShadowAttribute']['deleted']) $this->__beforeDeleteCorrelation($this->data['ShadowAttribute']);
 		return true;
+	}
+
+	private function __beforeDeleteCorrelation(&$sa) {
+		$temp = $sa;
+		if (isset($temp['ShadowAttribute'])) $temp = $temp['ShadowAttribute'];
+		$this->ShadowAttributeCorrelation = ClassRegistry::init('ShadowAttributeCorrelation');
+		$this->ShadowAttributeCorrelation->deleteAll(array('ShadowAttributeCorrelation.1_shadow_attribute_id' => $temp['id']));
+	}
+
+	private function __afterSaveCorrelation(&$sa) {
+		$temp = $sa;
+		if (isset($temp['ShadowAttribute'])) $temp = $temp['ShadowAttribute'];
+		if (in_array($temp['type'], $this->Event->Attribute->nonCorrelatingTypes)) return;
+		$this->ShadowAttributeCorrelation = ClassRegistry::init('ShadowAttributeCorrelation');
+		$shadow_attribute_correlations = array();
+		$fields = array('value1', 'value2');
+		$correlatingValues = array($temp['value1']);
+		if (!empty($temp['value2'])) $correlatingValues[] = $temp['value2'];
+		foreach ($correlatingValues as $k => $cV) {
+			$correlatingAttributes[$k] = $this->Event->Attribute->find('all', array(
+					'conditions' => array(
+							'AND' => array(
+									'OR' => array(
+											'Attribute.value1' => $cV,
+											'Attribute.value2' => $cV
+									),
+									'Attribute.type !=' => $this->Event->Attribute->nonCorrelatingTypes,
+									'Attribute.deleted' => false
+							),
+					),
+					'recursive => -1',
+					'fields' => array('Attribute.event_id', 'Attribute.id', 'Attribute.distribution', 'Attribute.sharing_group_id'),
+					'contain' => array('Event' => array('fields' => array('Event.id', 'Event.date', 'Event.info', 'Event.org_id', 'Event.distribution', 'Event.sharing_group_id'))),
+					'order' => array(),
+			));
+			foreach ($correlatingAttributes[$k] as $key => &$correlatingAttribute) {
+				if ($correlatingAttribute['Attribute']['event_id'] == $temp['event_id']) unset($correlatingAttributes[$k][$key]);
+			}
+			foreach ($correlatingAttributes as $k => $cA) {
+				foreach ($cA as $corr) {
+					$shadow_attribute_correlations[] = array(
+							'value' => $correlatingValues[$k],
+							'1_event_id' => $temp['event_id'],
+							'1_shadow_attribute_id' => $temp['id'],
+							'event_id' => $corr['Attribute']['event_id'],
+							'attribute_id' => $corr['Attribute']['id'],
+							'org_id' => $corr['Event']['org_id'],
+							'distribution' => $corr['Event']['distribution'],
+							'a_distribution' => $corr['Attribute']['distribution'],
+							'sharing_group_id' => $corr['Event']['sharing_group_id'],
+							'a_sharing_group_id' => $corr['Attribute']['sharing_group_id'],
+							'date' => $corr['Event']['date'],
+							'info' => $corr['Event']['info'],
+					);
+				}
+			}
+		}
+		if (!empty($shadow_attribute_correlations)) $this->ShadowAttributeCorrelation->saveMany($shadow_attribute_correlations);
 	}
 
 	public function afterSave($created, $options = array()) {
@@ -205,10 +262,9 @@ class ShadowAttribute extends AppModel {
 		if (isset($this->data['ShadowAttribute']['deleted']) && $this->data['ShadowAttribute']['deleted']) {
 			$sa = $this->find('first', array('conditions' => array('ShadowAttribute.id' => $this->data['ShadowAttribute']['id']), 'recursive' => -1, 'fields' => array('ShadowAttribute.id', 'ShadowAttribute.event_id', 'ShadowAttribute.type')));
 			if ($this->typeIsAttachment($sa['ShadowAttribute']['type'])) {
-				// FIXME secure this filesystem access/delete by not allowing to change directories or go outside of the directory container.
 				// only delete the file if it exists
 				$filepath = APP . "files" . DS . 'shadow' . DS . $sa['ShadowAttribute']['event_id'] . DS . $sa['ShadowAttribute']['id'];
-				$file = new File ($filepath);
+				$file = new File($filepath);
 				if ($file->exists()) {
 					if (!$file->delete()) {
 						throw new InternalErrorException('Delete of file attachment failed. Please report to administrator.');
@@ -220,6 +276,12 @@ class ShadowAttribute extends AppModel {
 				$result = $result && $this->saveBase64EncodedAttachment($this->data['ShadowAttribute']);
 			}
 		}
+		if ((isset($this->data['ShadowAttribute']['deleted']) && $this->data['ShadowAttribute']['deleted']) || (isset($this->data['ShadowAttribute']['proposal_to_delete']) && $this->data['ShadowAttribute']['proposal_to_delete'])) {
+			// this is a deletion
+			// Could be a proposal to delete or flagging a proposal that it was discarded / accepted - either way, we don't want to correlate here for now
+		} else {
+			$this->__afterSaveCorrelation($this->data['ShadowAttribute']);
+		}
 		return $result;
 	}
 
@@ -227,10 +289,9 @@ class ShadowAttribute extends AppModel {
 		// delete attachments from the disk
 		$this->read(); // first read the attribute from the db
 		if ($this->typeIsAttachment($this->data['ShadowAttribute']['type'])) {
-			// FIXME secure this filesystem access/delete by not allowing to change directories or go outside of the directory container.
 			// only delete the file if it exists
 			$filepath = APP . "files" . DS . 'shadow' . DS . $this->data['ShadowAttribute']['event_id'] . DS . $this->data['ShadowAttribute']['id'];
-			$file = new File ($filepath);
+			$file = new File($filepath);
 			if ($file->exists()) {
 				if (!$file->delete()) {
 					throw new InternalErrorException('Delete of file attachment failed. Please report to administrator.');
@@ -248,7 +309,7 @@ class ShadowAttribute extends AppModel {
 		if (!isset($this->data['ShadowAttribute']['type'])) {
 			return false;
 		}
-		
+
 		if (empty($this->data['ShadowAttribute']['timestamp'])) {
 			$date = new DateTime();
 			$this->data['ShadowAttribute']['timestamp'] = $date->getTimestamp();
@@ -273,7 +334,7 @@ class ShadowAttribute extends AppModel {
 		}
 		return false;
 	}
-	
+
 	public function validCategory($fields) {
 		return $this->Event->Attribute->validCategory($fields);
 	}
@@ -327,7 +388,7 @@ class ShadowAttribute extends AppModel {
 		$rootDir = APP . DS . "files" . DS . 'shadow' . DS . $attribute['event_id'];
 		$dir = new Folder($rootDir, true);						// create directory structure
 		$destpath = $rootDir . DS . $attribute['id'];
-		$file = new File ($destpath, true);						// create the file
+		$file = new File($destpath, true);						// create the file
 		$decodedData = base64_decode($attribute['data']);		// decode
 		if ($file->write($decodedData)) {						// save the data
 			return true;
@@ -373,28 +434,23 @@ class ShadowAttribute extends AppModel {
 		// no errors in file upload, entry already in db, now move the file where needed and zip it if required.
 		// no sanitization is required on the filename, path or type as we save
 		// create directory structure
-		if (PHP_OS == 'WINNT') {
-			$rootDir = APP . "files" . DS . $eventId;
-		} else {
-			$rootDir = APP . "files" . DS . $eventId;
-		}
+		$rootDir = APP . "files" . DS . $eventId;
 		$dir = new Folder($rootDir, true);
 		// move the file to the correct location
-		$destpath = $rootDir . DS . $this->getId(); // id of the new attribute in the database
-		$file = new File ($destpath);
-		$zipfile = new File ($destpath . '.zip');
-		$fileInZip = new File($rootDir . DS . $extraPath . $filename); // FIXME do sanitization of the filename
+		$destpath = $rootDir . DS . $this->getID(); // id of the new attribute in the database
+		$file = new File($destpath);
+		$zipfile = new File($destpath . '.zip');
+		$fileInZip = new File($rootDir . DS . $extraPath . $filename);
 
 		// zip and password protect the malware files
 		if ($malware) {
-			// TODO check if CakePHP has no easy/safe wrapper to execute commands
 			$execRetval = '';
 			$execOutput = array();
-			exec("zip -j -P infected " . $zipfile->path . ' \'' . addslashes($fileInZip->path) . '\'', $execOutput, $execRetval);
-			if ($execRetval != 0) { // not EXIT_SUCCESS
-				// do some?
-			};
-			$fileInZip->delete(); // delete the original not-zipped-file
+			exec('zip -j -P infected ' . escapeshellarg($zipfile->path) . ' ' . escapeshellarg($fileInZip->path), $execOutput, $execRetval);
+			if ($execRetval != 0) {	// not EXIT_SUCCESS
+				throw new Exception('An error has occured while attempting to zip the malware file.');
+			}
+			$fileInZip->delete(); // delete the original non-zipped-file
 			rename($zipfile->path, $file->path); // rename the .zip to .nothing
 		} else {
 			$fileAttach = new File($fileP);
@@ -414,16 +470,18 @@ class ShadowAttribute extends AppModel {
 		}
 		return $fails;
 	}
-	
+
 	public function setDeleted($id) {
 		$this->Behaviors->detach('SysLogLogable.SysLogLogable');
-		$this->id = $id;
-		$this->saveField('deleted', 1);
+		$sa = $this->find('first', array('conditions' => array('ShadowAttribute.id' => $id), 'recusive' => -1));
+		if (empty($sa)) return false;
 		$date = new DateTime();
-		$this->saveField('timestamp', $date->getTimestamp());
+		$sa['ShadowAttribute']['deleted'] = 1;
+		$sa['ShadowAttribute']['timestamp'] = $date->getTimestamp();
+		$this->save($sa);
 		return true;
 	}
-	
+
 	public function findOldProposal($sa) {
 		$oldsa = $this->find('first', array(
 			'conditions' => array(
@@ -438,21 +496,21 @@ class ShadowAttribute extends AppModel {
 		if (empty($oldsa)) return false;
 		else return $oldsa['ShadowAttribute'];
 	}
-	
+
 	public function getEventContributors($id) {
-		$orgs = $this->find('all', array('fields' => array('DISTINCT(org_id)'), 'conditions' => array('event_id' => $id)));
+		$orgs = $this->find('all', array('fields' => array('DISTINCT(org_id)'), 'conditions' => array('event_id' => $id), 'order' => false));
 		$org_ids = array();
 		foreach ($orgs as $org) {
 			$org_ids[] = $org['ShadowAttribute']['org_id'];
 		}
 		return $org_ids;
 	}
-	
+
 
 	public function sendProposalAlertEmail($id) {
 		$this->Event->recursive = -1;
 		$event = $this->Event->read(null, $id);
-	
+
 		// If the event has an e-mail lock, return
 		if ($event['Event']['proposal_email_lock'] == 1) {
 			return;
@@ -467,9 +525,9 @@ class ShadowAttribute extends AppModel {
 						'contactalert' => 1,
 						'disabled' => 0
 				),
-				'fields' => array('email', 'gpgkey', 'contactalert', 'id')
+				'fields' => array('email', 'gpgkey', 'certif_public', 'contactalert', 'id')
 		));
-	
+
 		$body = "Hello, \n\n";
 		$body .= "A user of another organisation has proposed a change to an event created by you or your organisation. \n\n";
 		$body .= 'To view the event in question, follow this link: ' . Configure::read('MISP.baseurl') . '/events/view/' . $id . "\n";
@@ -480,7 +538,7 @@ class ShadowAttribute extends AppModel {
 		}
 		return $result;
 	}
-	
+
 
 	public function setProposalLock($id, $lock = true) {
 		$this->Event->recursive = -1;
@@ -493,5 +551,103 @@ class ShadowAttribute extends AppModel {
 		$fieldList = array('proposal_email_lock', 'id', 'info');
 		$this->Event->save($event, array('fieldList' => $fieldList));
 	}
-}
 
+	public function generateCorrelation($jobId = false) {
+		$this->ShadowAttributeCorrelation = ClassRegistry::init('ShadowAttributeCorrelation');
+		$this->ShadowAttributeCorrelation->deleteAll(array('id !=' => 0), false);
+		// get all proposals..
+		$proposals = $this->find('all', array('recursive' => -1, 'conditions' => array('ShadowAttribute.deleted' => 0, 'ShadowAttribute.proposal_to_delete' => 0)));
+		$proposalCount = count($proposals);
+		if ($jobId && Configure::read('MISP.background_jobs')) {
+			$this->Job = ClassRegistry::init('Job');
+			$this->Job->id = $jobId;
+		}
+		if ($proposalCount > 0) {
+			foreach ($proposals as $k => $proposal) {
+				$this->__afterSaveCorrelation($proposal['ShadowAttribute']);
+				if ($jobId && Configure::read('MISP.background_jobs') && $k > 0 && $proposalCount % $k == 10) {
+					$this->Job->saveField('progress', ($k / $proposalCount * 100));
+				}
+			}
+		}
+		if ($jobId && Configure::read('MISP.background_jobs')) {
+			$this->Job->saveField('progress', 100);
+			$this->Job->saveField('status', 4);
+			$this->Job->saveField('message', 'Job done.');
+		}
+		return $proposalCount;
+	}
+
+	public function upgradeToProposalCorrelation() {
+		$this->Log = ClassRegistry::init('Log');
+		if (!Configure::read('MISP.background_jobs')) {
+			$this->Log->create();
+			$this->Log->save(array(
+					'org' => 'SYSTEM',
+					'model' => 'Server',
+					'model_id' => 0,
+					'email' => 'SYSTEM',
+					'action' => 'update_database',
+					'user_id' => 0,
+					'title' => 'Starting proposal correlation generation',
+					'change' => 'The generation of Proposal correlations as part of the 2.4.20 datamodel upgrade has started'
+			));
+			$count = $this->generateCorrelation();
+			$this->Log->create();
+			if (is_numeric($count)) {
+				$this->Log->save(array(
+						'org' => 'SYSTEM',
+						'model' => 'Server',
+						'model_id' => 0,
+						'email' => 'SYSTEM',
+						'action' => 'update_database',
+						'user_id' => 0,
+						'title' => 'Proposal correlation generation complete',
+						'change' => 'The generation of Proposal correlations as part of the 2.4.20 datamodel upgrade is completed. ' . $count . ' proposals used.'
+				));
+			} else {
+				$this->Log->save(array(
+						'org' => 'SYSTEM',
+						'model' => 'Server',
+						'model_id' => 0,
+						'email' => 'SYSTEM',
+						'action' => 'update_database',
+						'user_id' => 0,
+						'title' => 'Proposal correlation generation failed',
+						'change' => 'The generation of Proposal correlations as part of the 2.4.20 has failed. You can rerun it from the administrative tools.'
+				));
+			}
+		} else {
+			$job = ClassRegistry::init('Job');
+			$job->create();
+			$data = array(
+					'worker' => 'default',
+					'job_type' => 'generate proposal correlation',
+					'job_input' => 'All attributes',
+					'retries' => 0,
+					'status' => 1,
+					'org' => 'SYSTEM',
+					'message' => 'Correlating Proposals.',
+			);
+			$job->save($data);
+			$jobId = $job->id;
+			$process_id = CakeResque::enqueue(
+					'default',
+					'AdminShell',
+					array('jobGenerateShadowAttributeCorrelation', $jobId)
+			);
+			$job->saveField('process_id', $process_id);
+			$this->Log->create();
+			$this->Log->save(array(
+					'org' => 'SYSTEM',
+					'model' => 'Server',
+					'model_id' => 0,
+					'email' => 'SYSTEM',
+					'action' => 'update_database',
+					'user_id' => 0,
+					'title' => 'Proposal correlation generation job queued',
+					'change' => 'The job for the generation of Proposal correlations as part of the 2.4.20 datamodel upgrade has been queued'
+			));
+		}
+	}
+}

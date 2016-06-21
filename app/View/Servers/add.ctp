@@ -15,7 +15,7 @@
 		<p class="red">Information about the organisation that will receive the events, typically the remote instance's host organisation.</p>
 		</div>
 		<div class = "input clear"></div>
-	<?php	
+	<?php
 		if ($isSiteAdmin) :
 		echo $this->Form->input('organisation_type', array(
 				'label' => 'Remote Sync Organisation Type',
@@ -36,14 +36,14 @@
 		</div>
 		<div id="ServerExternalNameContainer" class="input select hiddenField" style="display:none;">
 			<label for="ServerExternalName">Remote Organisation's Name</label>
-			<input type="text" id="ServerExternalName">
+			<input type="text" id="ServerExternalName" <?php if (isset($this->request->data['Server']['external_name'])) echo 'value="' . $this->request->data['Server']['external_name'] . '"';?>>
 		</div>
 		<div id="ServerExternalUuidContainer" class="input select hiddenField" style="display:none;">
 			<label for="ServerExternalUuid">Remote Organisation's Uuid</label>
-			<input type="text" id="ServerExternalUuid">
+			<input type="text" id="ServerExternalUuid" <?php if (isset($this->request->data['Server']['external_uuid'])) echo 'value="' . $this->request->data['Server']['external_uuid'] . '"';?>>
 		</div>
 		<div class = "input clear"></div>
-	<?php	
+	<?php
 		endif;
 		echo $this->Form->input('authkey', array(
 		));
@@ -96,7 +96,7 @@ echo $this->Form->end();
 	<?php echo $this->element('serverRuleElements/push'); ?>
 	<?php echo $this->element('serverRuleElements/pull'); ?>
 </div>
-<?php 
+<?php
 	echo $this->element('side_menu', array('menuList' => 'sync', 'menuItem' => 'add'));
 ?>
 
@@ -119,6 +119,7 @@ var validOptions = ['pull', 'push'];
 var validFields = ['tags', 'orgs'];
 var tags = <?php echo json_encode($allTags); ?>;
 var orgs = <?php echo json_encode($allOrganisations); ?>;
+var modelContext = 'Server';
 
 $(document).ready(function() {
 	serverOrgTypeChange();
@@ -139,7 +140,7 @@ $(document).ready(function() {
 	            content: formInfoValues[e.currentTarget.id],
 	        }).popover('show');
 	});
-	
+
 	serverRulePopulateTagPicklist();
 	$("#push_modify").click(function() {
 		serverRuleFormActivate('push');
