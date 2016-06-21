@@ -880,8 +880,8 @@ class User extends AppModel {
 
 	public function fetchPGPKey($email) {
 		App::uses('SyncTool', 'Tools');
-		$syncTool = new SyncTool();
-		$HttpSocket = $syncTool->setupHttpSocket();
+		$SyncTool = new SyncTool();
+		$HttpSocket = $SyncTool->setupHttpSocket();
 		$response = $HttpSocket->get('https://pgp.mit.edu/pks/lookup?search=' . $email . '&op=index&fingerprint=on');
 		if ($response->code != 200) return $response->code;
 		$string = str_replace(array("\r", "\n"), "", $response->body);

@@ -763,8 +763,8 @@ class Event extends AppModel {
 		$authkey = $server['Server']['authkey'];
 		if (null == $HttpSocket) {
 			App::uses('SyncTool', 'Tools');
-			$syncTool = new SyncTool();
-			$HttpSocket = $syncTool->setupHttpSocket($server);
+			$SyncTool = new SyncTool();
+			$HttpSocket = $SyncTool->setupHttpSocket($server);
 		}
 		$request = array(
 				'header' => array(
@@ -952,8 +952,8 @@ class Event extends AppModel {
 		$authkey = $server['Server']['authkey'];
 		if (null == $HttpSocket) {
 			App::uses('SyncTool', 'Tools');
-			$syncTool = new SyncTool();
-			$HttpSocket = $syncTool->setupHttpSocket($server);
+			$SyncTool = new SyncTool();
+			$HttpSocket = $SyncTool->setupHttpSocket($server);
 		}
 		$request = array(
 				'header' => array(
@@ -988,8 +988,8 @@ class Event extends AppModel {
 			//		'ssl_verify_peer' => false
 			//		));
 			App::uses('SyncTool', 'Tools');
-			$syncTool = new SyncTool();
-			$HttpSocket = $syncTool->setupHttpSocket($server);
+			$SyncTool = new SyncTool();
+			$HttpSocket = $SyncTool->setupHttpSocket($server);
 		}
 		$request = array(
 				'header' => array(
@@ -1018,8 +1018,8 @@ class Event extends AppModel {
 		$authkey = $server['Server']['authkey'];
 		if (null == $HttpSocket) {
 			App::uses('SyncTool', 'Tools');
-			$syncTool = new SyncTool();
-			$HttpSocket = $syncTool->setupHttpSocket($server);
+			$SyncTool = new SyncTool();
+			$HttpSocket = $SyncTool->setupHttpSocket($server);
 		}
 		$request = array(
 				'header' => array(
@@ -2139,8 +2139,8 @@ class Event extends AppModel {
 		$failedServers = array();
 		App::uses('SyncTool', 'Tools');
 		foreach ($servers as &$server) {
-			$syncTool = new SyncTool();
-			$HttpSocket = $syncTool->setupHttpSocket($server);
+			$SyncTool = new SyncTool();
+			$HttpSocket = $SyncTool->setupHttpSocket($server);
 			// Skip servers where the event has come from.
 			if (($passAlong != $server)) {
 				$thisUploaded = $this->uploadEventToServer($event, $server, $HttpSocket);

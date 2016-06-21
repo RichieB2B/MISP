@@ -298,8 +298,8 @@ class Feed extends AppModel {
 
 	private function __setupHttpSocket($feed) {
 		App::uses('SyncTool', 'Tools');
-		$syncTool = new SyncTool();
-		return ($syncTool->setupHttpSocketFeed($feed));
+		$SyncTool = new SyncTool();
+		return ($SyncTool->setupHttpSocketFeed($feed));
 	}
 
 	private function __addEventFromFeed($HttpSocket, $feed, $uuid, $user, $filterRules) {
@@ -355,14 +355,14 @@ class Feed extends AppModel {
 	public function downloadFromFeedInitiator($feedId, $user, $jobId = false) {
 		$this->id = $feedId;
 		App::uses('SyncTool', 'Tools');
-		$syncTool = new SyncTool();
+		$SyncTool = new SyncTool();
 		$job = ClassRegistry::init('Job');
 		$this->read();
 		if ($jobId) {
 			$job->id = $jobId;
 			$job->saveField('message', 'Fetching event manifest.');
 		}
-		$HttpSocket = $syncTool->setupHttpSocketFeed($this->data);
+		$HttpSocket = $SyncTool->setupHttpSocketFeed($this->data);
 		$actions = $this->getNewEventUuids($this->data, $HttpSocket);
 		if ($jobId) {
 			$job->id = $jobId;
