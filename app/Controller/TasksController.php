@@ -99,7 +99,7 @@ class TasksController extends AppController {
 	private function _pushScheduler($timestamp, $id) {
 		$process_id = CakeResque::enqueueAt(
 				$timestamp,
-				'default',
+				'prio',
 				'ServerShell',
 				array('enqueuePush', $timestamp, $id, $this->Auth->user('id')),
 				true
