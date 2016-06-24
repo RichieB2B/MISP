@@ -525,7 +525,7 @@ class ServersController extends AppController {
 			$this->loadModel('Job');
 			$this->Job->create();
 			$data = array(
-					'worker' => 'default',
+					'worker' => 'prio',
 					'job_type' => 'push',
 					'job_input' => 'Server: ' . $id,
 					'status' => 0,
