@@ -729,7 +729,7 @@ class EventsController extends AppController
             if (!empty($passedArgs['searchminimal'])) {
                 unset($rules['contain']);
                 $rules['recursive'] = -1;
-                $rules['fields'] = array('id', 'timestamp', 'published', 'uuid');
+                $rules['fields'] = array('id', 'timestamp', 'published', 'uuid', 'orgc_id');
             }
             $paginationRules = array('page', 'limit', 'sort', 'direction', 'order');
             foreach ($paginationRules as $paginationRule) {
@@ -834,8 +834,11 @@ class EventsController extends AppController
                 }
                 return $this->RestResponse->viewData($events, $this->response->type(), false, false, false, array('X-Result-Count' => $absolute_total));
             } else {
+                $orgUuidArray = $this->Event->Org->find('list', array('fields' => array('Org.uuid')));
                 foreach ($events as $key => $event) {
                     $events[$key] = $event['Event'];
+                    $events[$key]['orgc_uuid'] = $orgUuidArray[$events[$key]['orgc_id']];
+                    unset($events[$key]['orgc_id']);
                 }
                 return $this->RestResponse->viewData($events, $this->response->type(), false, false, false, array('X-Result-Count' => $absolute_total));
             }

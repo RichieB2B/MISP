@@ -2539,10 +2539,14 @@ class Server extends AppModel
                     unset($tmp);
                 }
                 $eventIds = array();
+                $orgcUuids = array();
                 if ($all) {
                     if (!empty($eventArray)) {
                         foreach ($eventArray as $event) {
                             $eventIds[] = $event['uuid'];
+                            if (isset($event['orgc_uuid'])) {
+                                $orgcUuids[$event['uuid']] = $event['orgc_uuid'];
+                            }
                         }
                     }
                 } else {
@@ -2556,10 +2560,9 @@ class Server extends AppModel
                     $this->Event->removeOlder($eventArray);
                     if (!empty($eventArray)) {
                         foreach ($eventArray as $event) {
-                            if ($force_uuid) {
-                                $eventIds[] = $event['uuid'];
-                            } else {
-                                $eventIds[] = $event['uuid'];
+                            $eventIds[] = $event['uuid'];
+                            if (isset($event['orgc_uuid'])) {
+                                $orgcUuids[$event['uuid']] = $event['orgc_uuid'];
                             }
                         }
                     }
@@ -2573,6 +2576,14 @@ class Server extends AppModel
                             'fields' => array('EventBlacklist.id')
                         ));
                         if (!empty($blacklistEntry)) {
+                            unset($eventIds[$k]);
+                        }
+                    }
+                }
+                if (!empty($eventIds) && !empty($orgcUuids) && Configure::read('MISP.enableOrgBlacklisting') !== false) {
+                    $this->OrgBlacklist = ClassRegistry::init('OrgBlacklist');
+                    foreach ($eventIds as $k => $eventUuid) {
+                        if (isset($orgcUuids[$eventUuid]) && $this->OrgBlacklist->hasAny(array('OrgBlacklist.org_uuid' => $orgcUuids[$eventUuid]))) {
                             unset($eventIds[$k]);
                         }
                     }
