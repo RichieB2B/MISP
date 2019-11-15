@@ -335,6 +335,7 @@ CREATE TABLE public.events (
     locked boolean DEFAULT false NOT NULL,
     threat_level_id bigint NOT NULL,
     publish_timestamp bigint DEFAULT '0'::bigint NOT NULL,
+    sighting_timestamp bigint DEFAULT '0'::bigint NOT NULL,
     disable_correlation boolean DEFAULT false NOT NULL,
     extends_uuid character varying(40) DEFAULT ''::character varying
 );

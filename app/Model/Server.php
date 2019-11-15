@@ -2722,7 +2722,7 @@ class Server extends AppModel
                 ), // array of conditions
                 'recursive' => -1, //int
                 'contain' => array('EventTag' => array('fields' => array('EventTag.tag_id'))),
-                'fields' => array('Event.id', 'Event.timestamp', 'Event.uuid', 'Event.orgc_id'), // array of field names
+                'fields' => array('Event.id', 'Event.timestamp', 'Event.sighting_timestamp', 'Event.uuid', 'Event.orgc_id'), // array of field names
         );
         $eventIds = $this->Event->find('all', $findParams);
         $eventUUIDsFiltered = $this->getEventIdsForPush($id, $HttpSocket, $eventIds, $user);
@@ -2731,7 +2731,7 @@ class Server extends AppModel
         }
         if (!empty($eventUUIDsFiltered)) {
             $eventCount = count($eventUUIDsFiltered);
-            // now process the $eventIds to pull each of the events sequentially
+            // now process the $eventIds to push each of the events sequentially
             if (!empty($eventUUIDsFiltered)) {
                 $successes = array();
                 $fails = array();

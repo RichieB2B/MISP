@@ -100,7 +100,7 @@ COPY public.event_tags (id, event_id, tag_id) FROM stdin;
 -- Data for Name: events; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.events (id, org_id, date, info, user_id, uuid, published, analysis, attribute_count, orgc_id, "timestamp", distribution, sharing_group_id, proposal_email_lock, locked, threat_level_id, publish_timestamp, disable_correlation, extends_uuid) FROM stdin;
+COPY public.events (id, org_id, date, info, user_id, uuid, published, analysis, attribute_count, orgc_id, "timestamp", distribution, sharing_group_id, proposal_email_lock, locked, threat_level_id, publish_timestamp, sighting_timestamp, disable_correlation, extends_uuid) FROM stdin;
 \.
 
 
