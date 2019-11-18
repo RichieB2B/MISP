@@ -337,7 +337,7 @@ class Sighting extends AppModel
         return $attributes;
     }
 
-    public function saveSightings($id, $values, $timestamp, $user, $type = false, $source = false, $sighting_uuid = false)
+    public function saveSightings($id, $values, $timestamp, $user, $type = false, $source = false, $sighting_uuid = false, $publish = false)
     {
         $conditions = array();
         if ($id && $id !== 'stix') {
@@ -402,6 +402,9 @@ class Sighting extends AppModel
                 return json_encode($this->validationErrors);
             }
             $sightingsAdded += $result ? 1 : 0;
+            if ($publish) {
+                $this->Event->publishRouter($sighting['event_id'], null, $user, 'sighting');
+            }
         }
         if ($sightingsAdded == 0) {
             return 'There was nothing to add.';

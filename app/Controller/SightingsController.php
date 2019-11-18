@@ -66,7 +66,7 @@ class SightingsController extends AppController
                 $source = isset($this->request->data['source']) ? trim($this->request->data['source']) : '';
             }
             if (!$error) {
-                $result = $this->Sighting->saveSightings($id, $values, $timestamp, $this->Auth->user(), $type, $source, false, false, true);
+                $result = $this->Sighting->saveSightings($id, $values, $timestamp, $this->Auth->user(), $type, $source, false, true);
             }
             if (!is_numeric($result)) {
                 $error = $result;
@@ -427,21 +427,35 @@ class SightingsController extends AppController
     public function bulkSaveSightings($eventId = false)
     {
         if ($this->request->is('post')) {
-            $orgs = array();
             $this->loadModel('Event');
-            $event = $this->Event->fetchEvent($this->Auth->user(), array(
-                'eventid' => $eventId,
-                'flatten' => true
+            $user = $this->Auth->user();
+            if (!is_numeric($eventId)) {
+                 $eventId = $this->Event->field('id', array('uuid' => $eventId));
+            }
+            $event = $this->Event->fetchEvent($user, array(
+                 'eventid' => $eventId,
+                 'metadata' => 1,
+                 'flatten' => true
             ));
             if (empty($event)) {
-                
+                throw new MethodNotAllowedException('Event not found or not accesible by this user.');
             }
             if (empty($this->request->data['Sighting'])) {
                 $this->request->data = array('Sighting' => $this->request->data);
             }
-            foreach ($this->request->data['Sighting'] as $sighting) {
-
+            $saved = false;
+            foreach ($this->request->data['Sighting'] as $s) {
+                $result = $this->Sighting->saveSightings($s['attribute_uuid'], false, $s['date_sighting'], $user, $s['type'], $s['source'], $s['uuid']);
+                if (is_numeric($result)) {
+                    $saved = true;
+                }
             }
+            if ($saved) {
+                $this->Event->publishRouter($eventId, null, $user, 'sighting');
+            }
+            return new CakeResponse(array('body'=> json_encode(array('saved' => true, 'success' => 'Sightings added.')), 'status' => 200, 'type' => 'json'));
+        } else {
+            throw new MethodNotAllowedException('This method is only accessible via POST requests.');
         }
     }
 }
