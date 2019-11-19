@@ -403,7 +403,7 @@ class Sighting extends AppModel
             }
             $sightingsAdded += $result ? 1 : 0;
             if ($publish) {
-                $this->Event->publishRouter($sighting['event_id'], null, $user, 'sighting');
+                $this->Event->publishRouter($sighting['event_id'], null, $user, 'sightings');
             }
         }
         if ($sightingsAdded == 0) {

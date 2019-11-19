@@ -451,7 +451,7 @@ class SightingsController extends AppController
                 }
             }
             if ($saved) {
-                $this->Event->publishRouter($eventId, null, $user, 'sighting');
+                $this->Event->publishRouter($eventId, null, $user, 'sightings');
             }
             return new CakeResponse(array('body'=> json_encode(array('saved' => true, 'success' => 'Sightings added.')), 'status' => 200, 'type' => 'json'));
         } else {

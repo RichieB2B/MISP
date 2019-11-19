@@ -1075,13 +1075,13 @@ class Event extends AppModel
         return true;
     }
 
-    public function uploadEventToServer($event, $server, $HttpSocket = null, $scope = 'event')
+    public function uploadEventToServer($event, $server, $HttpSocket = null, $scope = 'events')
     {
         $this->Server = ClassRegistry::init('Server');
         $push = $this->Server->checkVersionCompatibility($server['Server']['id'], false, $HttpSocket);
         if ($scope === 'event' && empty($push['canPush'])) {
             return 'The remote user is not a sync user - the upload of the event has been blocked.';
-        } elseif ($scope === 'sighting' && empty($push['canPush']) && empty($push['canSight'])) {
+        } elseif ($scope === 'sightings' && empty($push['canPush']) && empty($push['canSight'])) {
             return 'The remote user is not a sightings user - the upload of the sightings has been blocked.';
         }
         if (!empty($server['Server']['unpublish_event'])) {
@@ -4163,13 +4163,13 @@ class Event extends AppModel
         return $workerType;
     }
 
-    public function publishRouter($id, $passAlong = null, $user, $scope = 'event')
+    public function publishRouter($id, $passAlong = null, $user, $scope = 'events')
     {
         if (Configure::read('MISP.background_jobs')) {
             $job_type = 'publish_' . $scope;
             $function = 'publish';
             $message = 'Publishing.';
-            if ($scope === 'sighting') {
+            if ($scope === 'sightings') {
                 $message = 'Publishing sightings.';
                 $function = 'publish_sightings';
             }
@@ -4195,7 +4195,7 @@ class Event extends AppModel
             );
             $job->saveField('process_id', $process_id);
             return $process_id;
-        } elseif ($scope === 'sighting') {
+        } elseif ($scope === 'sightings') {
             $result = $this->publish_sightings($id, $passAlong);
             return $result;
         } else {
