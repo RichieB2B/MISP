@@ -759,4 +759,55 @@ class Sighting extends AppModel
         fclose($tmpfile);
         return $final;
     }
+
+    // Bulk save sightings
+    public function bulkSaveSightings($eventId, $sightings, $passAlong = null)
+    {
+          $this->loadModel('Event');
+          $user = $this->Auth->user();
+          if (!is_numeric($eventId)) {
+               $eventId = $this->Event->field('id', array('uuid' => $eventId));
+          }
+          $event = $this->Event->fetchEvent($user, array(
+               'eventid' => $eventId,
+               'metadata' => 1,
+               'flatten' => true
+          ));
+          if (empty($event)) {
+              return 'Event not found or not accesible by this user.';
+          }
+          $saved = 0;
+          foreach ($sightings as $s) {
+              $result = $this->Sighting->saveSightings($s['attribute_uuid'], false, $s['date_sighting'], $user, $s['type'], $s['source'], $s['uuid']);
+              if (is_numeric($result)) {
+                  $saved += $result;
+              }
+          }
+          if ($saved > 0) {
+              $this->Event->publishRouter($eventId, $passAlong, $user, 'sightings');
+          }
+          return $saved;
+    }
+
+    public function pullSightings($HttpSocket, $server)
+    {
+        $this->loadModel('Event');
+        $HttpSocket = $this->setupHttpSocket($server, $HttpSocket);
+        $eventIds = $this->getEventIdsFromServer($server, true, $HttpSocket, false, false, 'sightings');
+        $saved = 0;
+        // now process the $eventIds to pull each of the events sequentially
+        if (!empty($eventIds)) {
+            // download each event and save sightings
+            foreach ($eventIds as $k => $eventId) {
+                $event = $this->Event->downloadEventFromServer($eventId, $server);
+                if(!empty($event) && !empty($event['Event']['Sighting'])) {
+                    $result = $this->Sighting->bulkSaveSightings($event['Event']['uuid'], $event['Event']['Sighting'], $server['Server']['id']);
+                    if (is_numeric($result)) {
+                        $saved += $result;
+                    }
+                }
+            }
+        }
+        return $saved;
+    }
 }

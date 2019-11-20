@@ -733,7 +733,7 @@ class EventsController extends AppController
             if (!empty($passedArgs['searchminimal'])) {
                 unset($rules['contain']);
                 $rules['recursive'] = -1;
-                $rules['fields'] = array('id', 'timestamp', 'published', 'uuid');
+                $rules['fields'] = array('id', 'timestamp', 'sighting_timestamp', 'published', 'uuid');
                 $rules['contain'] = array('Orgc.uuid');
             }
             $paginationRules = array('page', 'limit', 'sort', 'direction', 'order');

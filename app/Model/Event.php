@@ -4503,19 +4503,22 @@ class Event extends AppModel
         return false;
     }
 
-    public function removeOlder(&$eventArray)
+    public function removeOlder(&$eventArray, $field = 'timestamp')
     {
         $uuidsToCheck = array();
         foreach ($eventArray as $k => &$event) {
             $uuidsToCheck[$event['uuid']] = $k;
         }
         $localEvents = array();
-        $temp = $this->find('all', array('recursive' => -1, 'fields' => array('Event.uuid', 'Event.timestamp', 'Event.locked')));
+        $temp = $this->find('all', array('recursive' => -1, 'fields' => array('Event.uuid', 'Event.' . $field, 'Event.locked')));
         foreach ($temp as $e) {
-            $localEvents[$e['Event']['uuid']] = array('timestamp' => $e['Event']['timestamp'], 'locked' => $e['Event']['locked']);
+            $localEvents[$e['Event']['uuid']] = array($field => $e['Event'][$field], 'locked' => $e['Event']['locked']);
         }
         foreach ($uuidsToCheck as $uuid => $eventArrayId) {
-            if (isset($localEvents[$uuid]) && ($localEvents[$uuid]['timestamp'] >= $eventArray[$eventArrayId]['timestamp'] || !$localEvents[$uuid]['locked'])) {
+            if (isset($localEvents[$uuid])
+                  && ($localEvents[$uuid][$field] >= $eventArray[$eventArrayId][$field]
+                  || ($field === 'timestamp' && !$localEvents[$uuid]['locked'])))
+            {
                 unset($eventArray[$eventArrayId]);
             }
         }

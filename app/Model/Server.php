@@ -2492,6 +2492,11 @@ class Server extends AppModel
         }
         if ($jobId) {
             $job->saveField('progress', 50);
+            $job->saveField('message', 'Pulling sightings.');
+        }
+        $pulledSightings = $eventModel->Sighting->pullSightings($user, $server);
+        if ($jobId) {
+            $job->saveField('progress', 75);
             $job->saveField('message', 'Pulling proposals.');
         }
         $pulledProposals = $eventModel->ShadowAttribute->pullProposals($user, $server);
@@ -2511,8 +2516,9 @@ class Server extends AppModel
             'user_id' => $user['id'],
             'title' => 'Pull from ' . $server['Server']['url'] . ' initiated by ' . $email,
             'change' => sprintf(
-                '%s events and %s proposals pulled or updated. %s events failed or didn\'t need an update.',
+                '%s events, %s sightings and %s proposals pulled or updated. %s events failed or didn\'t need an update.',
                 count($successes),
+                $pulledSightings,
                 $pulledProposals,
                 count($fails)
             )
@@ -2549,7 +2555,7 @@ class Server extends AppModel
 
 
     // Get an array of event_ids that are present on the remote server
-    public function getEventIdsFromServer($server, $all = false, $HttpSocket=null, $force_uuid=false, $ignoreFilterRules = false)
+    public function getEventIdsFromServer($server, $all = false, $HttpSocket=null, $force_uuid=false, $ignoreFilterRules = false, $scope = 'events')
     {
         $url = $server['Server']['url'];
         if ($ignoreFilterRules) {
@@ -2617,7 +2623,7 @@ class Server extends AppModel
                             }
                         }
                     }
-                    $this->Event->removeOlder($eventArray);
+                    $this->Event->removeOlder($eventArray, $scope);
                     if (!empty($eventArray)) {
                         foreach ($eventArray as $event) {
                             if ($force_uuid) {
@@ -2778,6 +2784,7 @@ class Server extends AppModel
             }
         }
 
+        $this->syncSightings($HttpSocket, $this->data, $this->Event);
         $this->syncProposals($HttpSocket, $this->data, null, null, $this->Event);
 
         if (!isset($successes)) {
@@ -2832,6 +2839,23 @@ class Server extends AppModel
             return false;
         }
         return $uuidList;
+    }
+
+    public function syncSightings($HttpSocket, $server, $eventModel)
+    {
+        $HttpSocket = $this->setupHttpSocket($server, $HttpSocket);
+        $eventIds = $this->getEventIdsFromServer($server, true, $HttpSocket, false, false, 'sightings');
+        // now process the $eventIds to push each of the events sequentially
+        if (!empty($eventIds)) {
+            // download each event and save sightings
+            foreach ($eventIds as $k => $eventId) {
+                $event = $eventModel->downloadEventFromServer($eventId, $server);
+                if(!empty($event) && !empty($event['Event']['Sighting'])) {
+                        $this->Sighting->bulkSaveSightings($event['Event']['uuid'], $event['Event']['Sighting']);
+                    }
+                }
+            }
+        }
     }
 
     public function syncProposals($HttpSocket, $server, $sa_id = null, $event_id = null, $eventModel)
