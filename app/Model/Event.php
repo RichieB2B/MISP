@@ -4106,7 +4106,8 @@ class Event extends AppModel
         $failedServers = array();
         App::uses('SyncTool', 'Tools');
         foreach ($servers as &$server) {
-            if ((!isset($server['Server']['internal']) || !$server['Server']['internal']) && $event['Event']['distribution'] < 2) {
+            if (((!isset($server['Server']['internal']) || !$server['Server']['internal']) && $event['Event']['distribution'] < 2) ||
+                ((!isset($server['Server']['push_sightings']) || !$server['Server']['push_sightings'])) && $scope === 'sightings') {
                 continue;
             }
             $syncTool = new SyncTool();

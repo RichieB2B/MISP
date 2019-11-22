@@ -2858,11 +2858,14 @@ class Server extends AppModel
 
     public function syncSightings($HttpSocket, $server, $user, $eventModel)
     {
+        $successes = array();
+        if (!$server['push_sightings']) {
+            return $successes;
+        }
         $this->Sighting = ClassRegistry::init('Sighting');
         $HttpSocket = $this->setupHttpSocket($server, $HttpSocket);
         $eventIds = $this->getEventIdsFromServer($server, true, $HttpSocket, false, true, 'sightings');
         // now process the $eventIds to push each of the events sequentially
-        $successes = array();
         if (!empty($eventIds)) {
             // check each event and push sightings when needed
             foreach ($eventIds as $k => $eventId) {

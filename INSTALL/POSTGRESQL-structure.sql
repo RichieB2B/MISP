@@ -1172,6 +1172,7 @@ CREATE TABLE public.servers (
     org_id bigint NOT NULL,
     push boolean NOT NULL,
     pull boolean NOT NULL,
+    push_sightings boolean DEFAULT false NOT NULL,
     lastpulledid bigint,
     lastpushedid bigint,
     organization character varying(10),

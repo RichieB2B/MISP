@@ -323,7 +323,7 @@ COPY public.roles (id, name, created, modified, perm_add, perm_modify, perm_modi
 -- Data for Name: servers; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.servers (id, name, url, authkey, org_id, push, pull, lastpulledid, lastpushedid, organization, remote_org_id, publish_without_email, unpublish_event, self_signed, pull_rules, push_rules, cert_file, client_cert_file, internal) FROM stdin;
+COPY public.servers (id, name, url, authkey, org_id, push, pull, push_sightings, lastpulledid, lastpushedid, organization, remote_org_id, publish_without_email, unpublish_event, self_signed, pull_rules, push_rules, cert_file, client_cert_file, internal) FROM stdin;
 \.
 
 
