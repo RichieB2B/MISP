@@ -27,6 +27,7 @@
             <th><?php echo $this->Paginator->sort('internal');?></th>
             <th><?php echo $this->Paginator->sort('push');?></th>
             <th><?php echo $this->Paginator->sort('pull');?></th>
+            <th><?php echo $this->Paginator->sort('push_sightings', 'Push Sightings');?></th>
             <th><?php echo $this->Paginator->sort('caching_enabled', 'Cache');?></th>
             <th><?php echo $this->Paginator->sort('unpublish_event (push event)');?></th>
             <th><?php echo $this->Paginator->sort('publish_without_email (pull event)');?></th>
