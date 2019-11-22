@@ -2869,7 +2869,7 @@ class Server extends AppModel
     public function syncSightings($HttpSocket, $server, $user, $eventModel)
     {
         $successes = array();
-        if (!$server['push_sightings']) {
+        if (!$server['Server']['push_sightings']) {
             return $successes;
         }
         $this->Sighting = ClassRegistry::init('Sighting');
