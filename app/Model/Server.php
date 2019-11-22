@@ -2584,7 +2584,7 @@ class Server extends AppModel
                     if (!empty($eventArray)) {
                         if ($scope === 'sightings') {
                             foreach ($eventArray as $event) {
-                                $localEvent = this->find('first', array(
+                                $localEvent = $this->Event->find('first', array(
                                         'recursive' => -1,
                                         'fields' => array('Event.uuid', 'Event.sighting_timestamp'),
                                         'conditions' => array('Event.uuid' => $event['uuid'])
@@ -2592,12 +2592,13 @@ class Server extends AppModel
                                 if (!empty($localEvent) && $localEvent['Event']['sighting_timestamp'] > $event['sighting_timestamp']) {
                                     $eventIds[] = $event['uuid'];
                                 }
-                          }
-                      } else {
-                          foreach ($eventArray as $event) {
-                              $eventIds[] = $event['uuid'];
-                          }
-                     }
+                            }
+                        } else {
+                            foreach ($eventArray as $event) {
+                                $eventIds[] = $event['uuid'];
+                            }
+                        }
+                    }
                 } else {
                     // multiple events, iterate over the array
                     $this->Event = ClassRegistry::init('Event');
