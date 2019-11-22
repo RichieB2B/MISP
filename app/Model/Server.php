@@ -2856,19 +2856,26 @@ class Server extends AppModel
 
     public function syncSightings($HttpSocket, $server, $user, $eventModel)
     {
+        $this->Sighting = ClassRegistry::init('Sighting');
         $HttpSocket = $this->setupHttpSocket($server, $HttpSocket);
         $eventIds = $this->getEventIdsFromServer($server, true, $HttpSocket, false, true, 'sightings');
         // now process the $eventIds to push each of the events sequentially
+        $successes = array();
         if (!empty($eventIds)) {
             // check each event and push sightings when needed
             foreach ($eventIds as $k => $eventId) {
                 $event = $eventModel->fetchEvent($user, $options = array('event_uuid' => $eventId, 'metadata' => true));
-                if ($event['Event']['sighting_timestamp'] > $eventId['sighting_timestamp']) {
+                if (!empty($event)) {
+                    $event = $event[0];
                     $event['Sighting'] = $this->Sighting->attachToEvent($event, $user);
-                    $eventModel->uploadEventToServer($event, $server, $HttpSocket, 'sightings');
+                    $result = $eventModel->uploadEventToServer($event, $server, $HttpSocket, 'sightings');
+                    if ($result === 'Success') {
+                        $successes[] = 'Sightings for event ' .  $event['Event']['id'];
+                    }
                 }
             }
         }
+        return $successes;
     }
 
     public function syncProposals($HttpSocket, $server, $sa_id = null, $event_id = null, $eventModel)
