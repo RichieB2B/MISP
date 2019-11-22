@@ -2582,10 +2582,22 @@ class Server extends AppModel
                 $eventIds = array();
                 if ($all) {
                     if (!empty($eventArray)) {
-                        foreach ($eventArray as $event) {
-                            $eventIds[] = $event['uuid'];
-                        }
-                    }
+                        if ($scope === 'sightings') {
+                            foreach ($eventArray as $event) {
+                                $localEvent = this->find('first', array(
+                                        'recursive' => -1,
+                                        'fields' => array('Event.uuid', 'Event.sighting_timestamp'),
+                                        'conditions' => array('Event.uuid' => $event['uuid'])
+                                    ));
+                                if (!empty($localEvent) && $localEvent['Event']['sighting_timestamp'] > $event['sighting_timestamp']) {
+                                    $eventIds[] = $event['uuid'];
+                                }
+                          }
+                      } else {
+                          foreach ($eventArray as $event) {
+                              $eventIds[] = $event['uuid'];
+                          }
+                     }
                 } else {
                     // multiple events, iterate over the array
                     $this->Event = ClassRegistry::init('Event');
@@ -2849,10 +2861,10 @@ class Server extends AppModel
         if (!empty($eventIds)) {
             // check each event and push sightings when needed
             foreach ($eventIds as $k => $eventId) {
-                $event = $this->Event->fetchEvent($user, $options = array('event_uuid' => $eventId, 'metadata' => true));
+                $event = $eventModel->fetchEvent($user, $options = array('event_uuid' => $eventId, 'metadata' => true));
                 if ($event['Event']['sighting_timestamp'] > $eventId['sighting_timestamp']) {
                     $event['Sighting'] = $this->Sighting->attachToEvent($event, $user);
-                    $this->Event->uploadEventToServer($event, $server, $HttpSocket, 'sightings');
+                    $eventModel->uploadEventToServer($event, $server, $HttpSocket, 'sightings');
                 }
             }
         }
