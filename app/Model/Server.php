@@ -2784,7 +2784,7 @@ class Server extends AppModel
             }
         }
 
-        $this->syncSightings($HttpSocket, $this->data, $this->Event);
+        $this->syncSightings($HttpSocket, $this->data, $user, $this->Event);
         $this->syncProposals($HttpSocket, $this->data, null, null, $this->Event);
 
         if (!isset($successes)) {
@@ -2841,7 +2841,7 @@ class Server extends AppModel
         return $uuidList;
     }
 
-    public function syncSightings($HttpSocket, $server, $eventModel)
+    public function syncSightings($HttpSocket, $server, $user, $eventModel)
     {
         $HttpSocket = $this->setupHttpSocket($server, $HttpSocket);
         $eventIds = $this->getEventIdsFromServer($server, true, $HttpSocket, false, false, 'sightings');
@@ -2851,8 +2851,7 @@ class Server extends AppModel
             foreach ($eventIds as $k => $eventId) {
                 $event = $eventModel->downloadEventFromServer($eventId, $server);
                 if(!empty($event) && !empty($event['Event']['Sighting'])) {
-                        $this->Sighting->bulkSaveSightings($event['Event']['uuid'], $event['Event']['Sighting']);
-                    }
+                        $this->Sighting->bulkSaveSightings($event['Event']['uuid'], $event['Event']['Sighting'], $user);
                 }
             }
         }
