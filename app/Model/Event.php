@@ -7069,9 +7069,4 @@ class Event extends AppModel
         }
         return $filters;
     }
-
-    public function prepareEventForPublishing()
-    {
-
-    }
 }

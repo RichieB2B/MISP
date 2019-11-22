@@ -2492,14 +2492,14 @@ class Server extends AppModel
         }
         if ($jobId) {
             $job->saveField('progress', 50);
-            $job->saveField('message', 'Pulling sightings.');
-        }
-        $pulledSightings = $eventModel->Sighting->pullSightings($user, $server);
-        if ($jobId) {
-            $job->saveField('progress', 75);
             $job->saveField('message', 'Pulling proposals.');
         }
         $pulledProposals = $eventModel->ShadowAttribute->pullProposals($user, $server);
+        if ($jobId) {
+            $job->saveField('progress', 75);
+            $job->saveField('message', 'Pulling sightings.');
+        }
+        $pulledSightings = $eventModel->Sighting->pullSightings($user, $server);
         if ($jobId) {
             $job->saveField('progress', 100);
             $job->saveField('message', 'Pull completed.');
@@ -2516,10 +2516,10 @@ class Server extends AppModel
             'user_id' => $user['id'],
             'title' => 'Pull from ' . $server['Server']['url'] . ' initiated by ' . $email,
             'change' => sprintf(
-                '%s events, %s sightings and %s proposals pulled or updated. %s events failed or didn\'t need an update.',
+                '%s events, %s proposals and %s sightings pulled or updated. %s events failed or didn\'t need an update.',
                 count($successes),
-                $pulledSightings,
                 $pulledProposals,
+                $pulledSightings,
                 count($fails)
             )
         ));
@@ -2844,14 +2844,15 @@ class Server extends AppModel
     public function syncSightings($HttpSocket, $server, $user, $eventModel)
     {
         $HttpSocket = $this->setupHttpSocket($server, $HttpSocket);
-        $eventIds = $this->getEventIdsFromServer($server, true, $HttpSocket, false, false, 'sightings');
+        $eventIds = $this->getEventIdsFromServer($server, true, $HttpSocket, false, true, 'sightings');
         // now process the $eventIds to push each of the events sequentially
         if (!empty($eventIds)) {
-            // download each event and save sightings
+            // check each event and push sightings when needed
             foreach ($eventIds as $k => $eventId) {
-                $event = $eventModel->downloadEventFromServer($eventId, $server);
-                if(!empty($event) && !empty($event['Event']['Sighting'])) {
-                        $this->Sighting->bulkSaveSightings($event['Event']['uuid'], $event['Event']['Sighting'], $user);
+                $event = $this->Event->fetchEvent($user, $options = array('event_uuid' => $eventId, 'metadata' => true));
+                if ($event['Event']['sighting_timestamp'] > $eventId['sighting_timestamp']) {
+                    $event['Sighting'] = $this->Sighting->attachToEvent($event, $user);
+                    $this->Event->uploadEventToServer($event, $server, $HttpSocket, 'sightings');
                 }
             }
         }
