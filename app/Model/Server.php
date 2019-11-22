@@ -2798,10 +2798,12 @@ class Server extends AppModel
         }
 
         $this->syncProposals($HttpSocket, $this->data, null, null, $this->Event);
-        $this->syncSightings($HttpSocket, $this->data, $user, $this->Event);
+        $sightingSuccesses = $this->syncSightings($HttpSocket, $this->data, $user, $this->Event);
 
         if (!isset($successes)) {
-            $successes = array();
+            $successes = $sightingSuccesses;
+        } else {
+            $successes = array_merge($successes, $sightingSuccesses);
         }
         if (!isset($fails)) {
             $fails = array();
