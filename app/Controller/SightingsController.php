@@ -432,7 +432,7 @@ class SightingsController extends AppController
             } else {
                 $sightings = $this->request->data['Sighting'];
             }
-            $saved = $this->Sighting->bulkSaveSightings($eventId, $sightings);
+            $saved = $this->Sighting->bulkSaveSightings($eventId, $sightings, $this->Auth->user());
             if (is_numeric($saved)) {
                 if ($saved > 0) {
                    return new CakeResponse(array('body'=> json_encode(array('saved' => true, 'success' => $saved . ' sightings added.')), 'status' => 200, 'type' => 'json'));
