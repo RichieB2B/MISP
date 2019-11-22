@@ -789,16 +789,25 @@ class Sighting extends AppModel
 
     public function pullSightings($user, $server)
     {
-        $HttpSocket = $this->setupHttpSocket($server, $HttpSocket);
-        $eventIds = $this->getEventIdsFromServer($server, true, $HttpSocket, false, false, 'sightings');
+        $HttpSocket = $this->setupHttpSocket($server);
+        $this->Server = ClassRegistry::init('Server');
+        $eventIds = $this->Server->getEventIdsFromServer($server, false, $HttpSocket, false, false, 'sightings');
         $saved = 0;
         // now process the $eventIds to pull each of the events sequentially
         if (!empty($eventIds)) {
             // download each event and save sightings
             foreach ($eventIds as $k => $eventId) {
                 $event = $this->Event->downloadEventFromServer($eventId, $server);
-                if(!empty($event) && !empty($event['Event']['Sighting'])) {
-                    $result = $this->Sighting->bulkSaveSightings($event['Event']['uuid'], $event['Event']['Sighting'], $server['Server']['id'], $user);
+                $sightings = array();
+                if(!empty($event) && !empty($event['Event']['Attribute'])) {
+                    foreach($event['Event']['Attribute'] as $attribute) {
+                        if(!empty($attribute['Sighting'])) {
+                            $sightings = array_merge($sightings, $attribute['Sighting']);
+                        }
+                    }
+                }
+                if(!empty($event) && !empty($sightings)) {
+                    $result = $this->bulkSaveSightings($event['Event']['uuid'], $sightings, $user, $server['Server']['id']);
                     if (is_numeric($result)) {
                         $saved += $result;
                     }

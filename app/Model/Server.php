@@ -2523,7 +2523,7 @@ class Server extends AppModel
                 count($fails)
             )
         ));
-        return array($successes, $fails, $pulledProposals);
+        return array($successes, $fails, $pulledProposals, $pulledSightings);
     }
 
     public function filterRuleToParameter($filter_rules)
@@ -2784,8 +2784,8 @@ class Server extends AppModel
             }
         }
 
-        $this->syncSightings($HttpSocket, $this->data, $user, $this->Event);
         $this->syncProposals($HttpSocket, $this->data, null, null, $this->Event);
+        $this->syncSightings($HttpSocket, $this->data, $user, $this->Event);
 
         if (!isset($successes)) {
             $successes = array();

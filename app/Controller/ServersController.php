@@ -663,13 +663,14 @@ class ServersController extends AppController
             if (!Configure::read('MISP.background_jobs')) {
                 $result = $this->Server->pull($this->Auth->user(), $id, $technique, $s);
                 if (is_array($result)) {
-                    $success = sprintf(__('Pull completed. %s events pulled, %s events could not be pulled, %s proposals pulled.', count($result[0]), count($result[1]), $result[2]));
+                    $success = sprintf(__('Pull completed. %s events pulled, %s events could not be pulled, %s proposals pulled, %s sightings pulled.', count($result[0]), count($result[1]), $result[2], $result[3]));
                 } else {
                     $error = $result;
                 }
                 $this->set('successes', $result[0]);
                 $this->set('fails', $result[1]);
                 $this->set('pulledProposals', $result[2]);
+                $this->set('pulledSightings', $result[3]);
             } else {
                 $this->loadModel('Job');
                 $this->Job->create();

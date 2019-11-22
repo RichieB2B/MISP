@@ -4503,8 +4503,13 @@ class Event extends AppModel
         return false;
     }
 
-    public function removeOlder(&$eventArray, $field = 'timestamp')
+    public function removeOlder(&$eventArray, $scope = 'events')
     {
+        if ($scope === 'sightings' ) {
+            $field = 'sighting_timestamp';
+        } else {
+            $field = 'timestamp';
+        }
         $uuidsToCheck = array();
         foreach ($eventArray as $k => &$event) {
             $uuidsToCheck[$event['uuid']] = $k;
@@ -4517,7 +4522,7 @@ class Event extends AppModel
         foreach ($uuidsToCheck as $uuid => $eventArrayId) {
             if (isset($localEvents[$uuid])
                   && ($localEvents[$uuid][$field] >= $eventArray[$eventArrayId][$field]
-                  || ($field === 'timestamp' && !$localEvents[$uuid]['locked'])))
+                  || ($scope === 'events' && !$localEvents[$uuid]['locked'])))
             {
                 unset($eventArray[$eventArrayId]);
             }
